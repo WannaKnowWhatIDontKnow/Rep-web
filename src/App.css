@@ -1,0 +1,62 @@
+/* 전체 앱의 기본 스타일을 설정합니다. */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f0f2f5; /* 전체 배경색을 부드러운 회색으로 설정합니다. */
+}
+
+/* 전체 앱을 감싸는 컨테이너의 스타일입니다. */
+.app-container {
+  padding: 50px; /* 화면 가장자리와 내용 사이에 여백을 줍니다. */
+  display: flex;
+  justify-content: center; /* 내용을 가로 방향 중앙에 배치합니다. */
+}
+
+/* 왼쪽과 오른쪽 패널을 포함하는 메인 콘텐츠 영역입니다. */
+.main-content {
+  display: flex; /* 자식 요소들을 가로로 나란히 배치합니다. */
+  gap: 20px; /* 각 패널 사이에 간격을 줍니다. */
+  width: 100%;
+  max-width: 1200px; /* 콘텐츠의 최대 너비를 제한합니다. */
+}
+
+/* 왼쪽 패널 (캘린더, 리스트) 스타일입니다. */
+.left-panel {
+  display: flex;
+  flex-direction: column; /* 자식 요소들을 세로로 나란히 배치합니다. */
+  gap: 20px; /* 캘린더와 리스트 사이에 간격을 줍니다. */
+  width: 30%; /* 왼쪽 패널의 너비를 설정합니다. */
+}
+
+/* 오른쪽 패널 (Current Rep, 대시보드) 스타일입니다. */
+.right-panel {
+  display: flex;
+  flex-direction: column; /* 자식 요소들을 세로로 나란히 배치합니다. */
+  gap: 20px; /* Current Rep과 대시보드 사이에 간격을 줍니다. */
+  width: 70%; /* 오른쪽 패널의 너비를 설정합니다. */
+}
+
+/* 각 영역의 기본 스타일입니다. (공통 속성) */
+.calendar-placeholder,
+.list-area,
+.current-rep-area,
+.dashboard-placeholder {
+  background-color: white; /* 배경색을 흰색으로 합니다. */
+  border: 1px solid #d9d9d9; /* 옅은 회색 테두리를 줍니다. */
+  border-radius: 8px; /* 모서리를 둥글게 만듭니다. */
+  padding: 20px; /* 안쪽 여백을 줍니다. */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* 은은한 그림자 효과를 줍니다. */
+  text-align: center; /* 글자를 가운데 정렬합니다. */
+  color: #888; /* 글자색을 회색으로 합니다. */
+  font-size: 1.2rem; /* 글자 크기를 키웁니다. */
+}
+
+/* 각 영역의 높이를 다르게 설정합니다. */
+.calendar-placeholder { height: 100px; }
+.list-area { height: 500px; }
+.current-rep-area { height: 150px; }
+.dashboard-placeholder { height: 330px; }
