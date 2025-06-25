@@ -12,24 +12,26 @@ function App() {
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [isRetroModalOpen, setRetroModalOpen] = useState(false);
   const [repToReview, setRepToReview] = useState(null);
-  const [repToEdit, setRepToEdit] = useState(null); // State to hold the rep being edited
+  const [repToEdit, setRepToEdit] = useState(null);
 
-  // Timer-related states are lifted up from CurrentRep.js
   const [remainingSeconds, setRemainingSeconds] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused, setIsPaused] = useState(true); // Start as paused
+  const [endTime, setEndTime] = useState(null); // State to store the target end time
 
   const handleOpenCreateModal = () => {
-    setRepToEdit(null); // Ensure it's in creation mode
+    setRepToEdit(null); 
     setCreateModalOpen(true);
-  };
-  const handleCloseCreateModal = () => {
-    setCreateModalOpen(false);
-    setRepToEdit(null); // Clean up after modal closes
   };
 
   const handleOpenEditModal = () => {
+    setIsPaused(true); // Pause timer when opening edit modal
     setRepToEdit(currentRep);
     setCreateModalOpen(true);
+  };
+
+  const handleCloseCreateModal = () => {
+    setCreateModalOpen(false);
+    setRepToEdit(null); // Clean up after modal closes
   };
 
   const handleCompleteRep = useCallback((completedRep) => {
@@ -39,40 +41,43 @@ function App() {
     setRetroModalOpen(true);
   }, []);
 
-  // Timer logic, moved from CurrentRep.js
+  // More robust timer logic
   useEffect(() => {
-    if (!currentRep || isPaused) return;
-
-    if (remainingSeconds <= 0) {
-      handleCompleteRep(currentRep);
+    if (!currentRep || isPaused) {
       return;
     }
 
     const timerId = setInterval(() => {
-      setRemainingSeconds(prevSeconds => prevSeconds - 1);
-    }, 1000);
+      const newRemaining = Math.round((endTime - Date.now()) / 1000);
+
+      if (newRemaining <= 0) {
+        setRemainingSeconds(0);
+        handleCompleteRep(currentRep);
+      } else {
+        setRemainingSeconds(newRemaining);
+      }
+    }, 500); // Check more frequently for better accuracy
 
     return () => clearInterval(timerId);
-  }, [remainingSeconds, isPaused, currentRep, handleCompleteRep]);
+  }, [isPaused, currentRep, endTime, handleCompleteRep]);
 
-  // This function now handles both creating and updating a Rep.
   const handleSaveRep = (goal, minutes, seconds) => {
     const newInitialSeconds = minutes * 60 + seconds;
 
     if (repToEdit) {
-      // Editing an existing Rep
       const elapsedSeconds = currentRep.initialSeconds - remainingSeconds;
-      const newRemainingSeconds = newInitialSeconds - elapsedSeconds;
+      const newRemainingSeconds = newInitialSeconds > elapsedSeconds ? newInitialSeconds - elapsedSeconds : 0;
 
       setCurrentRep({
         ...currentRep,
         goal: goal,
         initialSeconds: newInitialSeconds,
       });
-      setRemainingSeconds(newRemainingSeconds > 0 ? newRemainingSeconds : 0);
+      setRemainingSeconds(newRemainingSeconds);
+      setEndTime(Date.now() + newRemainingSeconds * 1000);
+      setIsPaused(false); // Resume after editing
 
     } else {
-      // Creating a new Rep
       const newRep = {
         id: Date.now(),
         goal: goal,
@@ -81,6 +86,7 @@ function App() {
       };
       setCurrentRep(newRep);
       setRemainingSeconds(newInitialSeconds);
+      setEndTime(Date.now() + newInitialSeconds * 1000);
       setIsPaused(false);
     }
 
@@ -91,6 +97,17 @@ function App() {
     if (window.confirm('Are you sure you want to delete this Rep?')) {
       setCurrentRep(null);
     }
+  };
+
+  const handleTogglePause = () => {
+    setIsPaused(prevIsPaused => {
+      const nowPaused = !prevIsPaused;
+      if (!nowPaused) {
+        // Resuming
+        setEndTime(Date.now() + remainingSeconds * 1000);
+      }
+      return nowPaused;
+    });
   };
 
   const handleRetroSubmit = (status, notes) => {
@@ -121,10 +138,10 @@ function App() {
             rep={currentRep}
             remainingSeconds={remainingSeconds}
             isPaused={isPaused}
-            onTogglePause={() => setIsPaused(!isPaused)}
+            onTogglePause={handleTogglePause}
             onStartNew={handleOpenCreateModal}
             onDelete={handleDeleteRep}
-            onEdit={handleOpenEditModal} // Changed from onEdit={handleEditRep}
+            onEdit={handleOpenEditModal}
           />
           {/* Dashboard area (placeholder for now) */}
           <div className="dashboard-placeholder">Dashboard</div>
@@ -134,8 +151,8 @@ function App() {
       <CreateRepModal
         isOpen={isCreateModalOpen}
         onClose={handleCloseCreateModal}
-        onStart={handleSaveRep} // Renamed from onStart={handleStartRep}
-        repToEdit={repToEdit} // Pass the rep to be edited
+        onStart={handleSaveRep}
+        repToEdit={repToEdit}
       />
 
       <RetrospectiveModal 
