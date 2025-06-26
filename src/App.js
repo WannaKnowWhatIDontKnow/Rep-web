@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
+import "react-datepicker/dist/react-datepicker.css"; // Datepicker CSS
 import CurrentRep from './components/CurrentRep';
 import RepList from './components/RepList';
 import CreateRepModal from './components/CreateRepModal';
 import RetrospectiveModal from './components/RetrospectiveModal';
 import Dashboard from './components/Dashboard';
+import CalendarSection from './components/CalendarSection'; // Import CalendarSection
 
 // App component (the overall structure of our website) is defined here.
 function App() {
+  const [selectedDate, setSelectedDate] = useState(new Date()); // State for the selected date
   const [currentRep, setCurrentRep] = useState(null);
   const [repList, setRepList] = useState(() => {
     // 앱이 처음 켜질 때 딱 한 번만 실행되는 부분입니다.
@@ -39,7 +42,19 @@ function App() {
     }
   }, [repList]);
 
+  const isToday = (date) => {
+    const today = new Date();
+    return date.getFullYear() === today.getFullYear() &&
+           date.getMonth() === today.getMonth() &&
+           date.getDate() === today.getDate();
+  }
+
   const handleOpenCreateModal = () => {
+    // 렙 생성은 오늘 날짜에서만 가능
+    if (!isToday(selectedDate)) {
+      alert("렙 생성은 오늘 날짜에서만 가능합니다.");
+      return;
+    }
     setRepToEdit(null); 
     setCreateModalOpen(true);
   };
@@ -136,11 +151,21 @@ function App() {
       ...repToReview,
       status: status,
       notes: notes,
+      completedAt: new Date().toISOString(), // 렙 종료 시각 기록
     };
     setRepList([reviewedRep, ...repList]);
     setRetroModalOpen(false);
     setRepToReview(null);
   };
+
+  // 선택된 날짜에 해당하는 렙만 필터링
+  const filteredReps = repList.filter(rep => {
+    if (!rep.completedAt) return false;
+    const repDate = new Date(rep.completedAt);
+    return repDate.getFullYear() === selectedDate.getFullYear() &&
+           repDate.getMonth() === selectedDate.getMonth() &&
+           repDate.getDate() === selectedDate.getDate();
+  });
 
   return (
     // Container for the entire app
@@ -148,10 +173,13 @@ function App() {
       {/* The four main areas of the screen we'll build out later */}
       <div className="main-content">
         <div className="left-panel">
-          {/* Calendar area (placeholder for now) */}
-          <div className="calendar-placeholder">Calendar</div>
+          {/* Calendar area */}
+          <CalendarSection 
+            selectedDate={selectedDate} 
+            setSelectedDate={setSelectedDate} 
+          />
           {/* List area (core feature implementation target) */}
-          <RepList reps={repList} />
+          <RepList reps={filteredReps} />
         </div>
         <div className="right-panel">
           {/* Current Rep area (core feature implementation target) */}
