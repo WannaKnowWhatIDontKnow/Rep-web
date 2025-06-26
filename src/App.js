@@ -8,7 +8,17 @@ import RetrospectiveModal from './components/RetrospectiveModal';
 // App component (the overall structure of our website) is defined here.
 function App() {
   const [currentRep, setCurrentRep] = useState(null);
-  const [repList, setRepList] = useState([]);
+  const [repList, setRepList] = useState(() => {
+    // 앱이 처음 켜질 때 딱 한 번만 실행되는 부분입니다.
+    try {
+      const savedReps = localStorage.getItem('repList'); // 'repList' 이름으로 저장된 게 있는지 찾아봅니다.
+      // 저장된 게 있으면 그걸 사용하고, 없으면 빈 목록으로 시작합니다.
+      return savedReps ? JSON.parse(savedReps) : [];
+    } catch (error) {
+      console.error("Failed to load reps from local storage", error);
+      return []; // 에러가 나도 앱이 멈추지 않게 빈 목록을 줍니다.
+    }
+  });
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [isRetroModalOpen, setRetroModalOpen] = useState(false);
   const [repToReview, setRepToReview] = useState(null);
@@ -17,6 +27,16 @@ function App() {
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [isPaused, setIsPaused] = useState(true); // Start as paused
   const [endTime, setEndTime] = useState(null); // State to store the target end time
+
+  // repList 데이터가 바뀔 때마다 자동으로 실행되는 센서입니다.
+  useEffect(() => {
+    try {
+      // repList 데이터를 텍스트로 변환해서 'repList'라는 이름으로 저장합니다.
+      localStorage.setItem('repList', JSON.stringify(repList));
+    } catch (error) {
+      console.error("Failed to save reps to local storage", error);
+    }
+  }, [repList]);
 
   const handleOpenCreateModal = () => {
     setRepToEdit(null); 
