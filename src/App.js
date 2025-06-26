@@ -4,6 +4,7 @@ import CurrentRep from './components/CurrentRep';
 import RepList from './components/RepList';
 import CreateRepModal from './components/CreateRepModal';
 import RetrospectiveModal from './components/RetrospectiveModal';
+import Dashboard from './components/Dashboard';
 
 // App component (the overall structure of our website) is defined here.
 function App() {
@@ -164,7 +165,7 @@ function App() {
             onEdit={handleOpenEditModal}
           />
           {/* Dashboard area (placeholder for now) */}
-          <div className="dashboard-placeholder">Dashboard</div>
+          <Dashboard reps={repList} />
         </div>
       </div>
 
