@@ -57,6 +57,6 @@ body {
 
 /* 각 영역의 높이를 다르게 설정합니다. */
 .calendar-placeholder { height: 100px; }
-.list-area { height: 500px; }
-.current-rep-area { height: 150px; }
-.dashboard-placeholder { height: 330px; }
+.list-area { height: 800px; }
+.current-rep-area { height: 100px; }
+.dashboard-placeholder { height: 500px; }

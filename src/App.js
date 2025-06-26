@@ -193,7 +193,7 @@ function App() {
             onEdit={handleOpenEditModal}
           />
           {/* Dashboard area (placeholder for now) */}
-          <Dashboard reps={repList} />
+          <Dashboard reps={filteredReps} />
         </div>
       </div>
 
