@@ -1,63 +1,76 @@
-/* 회고 모달은 CreateRepModal과 대부분의 스타일을 공유합니다. */
+/* RetrospectiveModal은 CreateRepModal과 대부분의 스타일을 공유합니다. */
 /* 여기서는 회고 모달에만 필요한 추가/변경 스타일을 정의합니다. */
 
 .retro-modal .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
-/* 상태 선택 버튼들을 감싸는 영역 */
 .status-buttons {
   display: flex;
-  gap: 10px; /* 버튼 사이의 간격 */
+  gap: 12px;
 }
 
-/* 상태 선택 버튼의 기본 스타일 */
 .status-btn {
-  flex-grow: 1; /* 버튼들이 동일한 너비를 갖도록 설정 */
-  padding: 10px;
-  border: 1px solid #d9d9d9;
-  background-color: white;
-  border-radius: 4px;
+  flex-grow: 1;
+  flex-basis: 0;
+  padding: 12px 0;
+  border: 1px solid #ddd;
+  background-color: #f9f9f9;
+  border-radius: 12px;
   cursor: pointer;
   font-size: 16px;
-  transition: all 0.3s;
+  font-weight: 600;
+  color: #555;
+  transition: all 0.2s;
 }
 
 .status-btn:hover {
-  border-color: #1890ff;
-  color: #1890ff;
+  border-color: #bbb;
+  background-color: #f0f0f0;
 }
 
 /* 선택된 상태 버튼의 스타일 */
 .status-btn.selected {
-  background-color: #1890ff;
   color: white;
-  border-color: #1890ff;
+  border: 1px solid transparent;
 }
 
-/* 여러 줄 입력창(textarea) 스타일 */
+.status-btn.selected:nth-child(1) { background-color: #4CAF50; } /* Achieved */
+.status-btn.selected:nth-child(2) { background-color: #F44336; } /* Failed */
+.status-btn.selected:nth-child(3) { background-color: #FFC107; } /* Goal Changed */
+
+
 .retro-modal textarea {
   width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
   font-size: 16px;
-  resize: vertical; /* 세로 크기만 조절 가능하도록 설정 */
-  box-sizing: border-box; /* padding과 border가 크기에 포함되도록 설정 */
+  box-sizing: border-box;
+  resize: vertical;
+  min-height: 100px;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* 완료 버튼 (CreateRepModal의 .start-button과 동일한 역할) */
+.retro-modal textarea:focus {
+  outline: none;
+  border-color: #6E66FF;
+  box-shadow: 0 0 0 3px rgba(110, 102, 255, 0.2);
+}
+
 .submit-button {
-  background-color: #1890ff;
+  background-color: #6E66FF;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
+  padding: 14px 28px;
+  border-radius: 12px;
   font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
 }
 
 .submit-button:hover {
-  background-color: #40a9ff;
+  background-color: #5851d1;
+  transform: translateY(-2px);
 }
