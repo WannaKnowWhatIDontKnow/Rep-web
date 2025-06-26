@@ -1,32 +1,51 @@
 .list-area {
   background-color: white;
-  border: 1px solid #d9d9d9;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  height: 520px;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  height: calc(100% - 90px); /* 캘린더 높이를 고려하여 계산 */
   color: #333;
-  display: flex; /* Flexbox 레이아웃 사용 */
-  flex-direction: column; /* 자식 요소들을 세로로 배치 */
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 .list-title {
-  text-align: center;
-  color: #888;
-  margin-top: 0;
-  margin-bottom: 16px;
-  flex-shrink: 0; /* 제목 영역은 줄어들지 않도록 설정 */
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 20px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: left;
 }
 
-/* Rep 카드들이 들어갈 리스트 영역 */
 .rep-card-list {
-  overflow-y: auto; /* 내용이 많아지면 세로 스크롤 자동 생성 */
-  flex-grow: 1; /* 남은 공간을 모두 차지하도록 설정 */
+  overflow-y: auto;
+  flex-grow: 1;
+  padding-right: 8px; /* 스크롤바 공간 확보 */
 }
 
-/* 리스트가 비어있을 때 보여줄 메시지 스타일 */
+/* 스크롤바 스타일링 */
+.rep-card-list::-webkit-scrollbar {
+  width: 6px;
+}
+.rep-card-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+.rep-card-list::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+.rep-card-list::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+
 .empty-list-message {
   text-align: center;
   color: #aaa;
   margin-top: 40px;
+  font-size: 16px;
 }
