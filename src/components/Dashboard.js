@@ -3,6 +3,7 @@ import './Dashboard.css';
 import { TbRepeat } from 'react-icons/tb';
 import { IoTimeOutline } from 'react-icons/io5';
 import { RiPieChartLine } from 'react-icons/ri';
+import { useAuth } from '../contexts/AuthContext';
 
 // 각 문자를 개별 박스에 렌더링하는 컴포넌트입니다.
 const DigitalDisplay = ({ value, className }) => {
@@ -26,12 +27,14 @@ const formatTime = (totalSeconds) => {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
-function Dashboard({ reps }) {
+function Dashboard({ reps, setActiveTab }) {
   const totalReps = reps.length;
   const achievedReps = reps.filter(rep => rep.status === 'Achieved').length;
   const failedReps = reps.filter(rep => rep.status === 'Failed').length;
   const changedCount = 0; // 'changed'는 0으로 고정합니다.
   const totalTime = reps.reduce((sum, rep) => sum + rep.initialSeconds, 0);
+  
+  const { isAuthenticated } = useAuth();
 
   return (
     <div className="dashboard-final">
@@ -75,6 +78,25 @@ function Dashboard({ reps }) {
             <span>Changed</span>
           </div>
         </div>
+      </div>
+      
+      {/* 통계 대시보드로 이동하는 버튼 */}
+      <div className="dash-section stats-navigation">
+        {isAuthenticated ? (
+          <button 
+            className="stats-button" 
+            onClick={() => setActiveTab('dashboard')}
+          >
+            주간/월간/연간 대시보드 보기
+          </button>
+        ) : (
+          <div className="stats-disabled">
+            <button className="stats-button disabled" disabled>
+              주간/월간/연간 대시보드 보기
+            </button>
+            <p className="stats-message">회원가입 시 이용 가능한 기능입니다</p>
+          </div>
+        )}
       </div>
     </div>
   );

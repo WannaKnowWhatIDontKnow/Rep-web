@@ -7,6 +7,7 @@ import CreateRepModal from './components/CreateRepModal';
 import RetrospectiveModal from './components/RetrospectiveModal';
 import Dashboard from './components/Dashboard';
 import CalendarSection from './components/CalendarSection'; // Import CalendarSection
+import Statistics from './components/Statistics/Statistics'; // 대시보드(주간/월간/연간) 컴포넌트 추가
 import supabase from './supabaseClient';
 import { useAuth } from './contexts/AuthContext';
 import AuthModal from './components/Auth/AuthModal';
@@ -22,6 +23,7 @@ function App() {
   const [repToReview, setRepToReview] = useState(null);
   const [repToEdit, setRepToEdit] = useState(null);
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'dashboard'
   
   const { user, isAuthenticated } = useAuth();
 
@@ -272,8 +274,9 @@ function App() {
         </div>
       </div>
       
-      {/* The four main areas of the screen we'll build out later */}
-      <div className="main-content">
+      {/* 탭에 따라 다른 콘텐츠 표시 */}
+      {activeTab === 'daily' ? (
+        <div className="main-content">
         <div className="left-panel">
           {/* Calendar area */}
           <CalendarSection 
@@ -294,18 +297,21 @@ function App() {
             onDelete={handleDeleteRep}
             onEdit={handleOpenEditModal}
           />
-          {/* Dashboard area (placeholder for now) */}
-          <Dashboard reps={filteredReps} />
+          {/* Dashboard area */}
+          <Dashboard reps={filteredReps} setActiveTab={setActiveTab} />
         </div>
       </div>
-
-      <CreateRepModal
+      ) : (
+        <Statistics setActiveTab={setActiveTab} />
+      )}
+      
+      <CreateRepModal 
         isOpen={isCreateModalOpen}
-        onClose={handleCloseCreateModal}
-        onStart={handleSaveRep}
+        onClose={() => setCreateModalOpen(false)}
+        onSubmit={handleSaveRep}
         repToEdit={repToEdit}
       />
-
+      
       <RetrospectiveModal 
         isOpen={isRetroModalOpen}
         onClose={() => setRetroModalOpen(false)}
