@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './CurrentRep.css';
 
-function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, onDelete }) {
+function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, onDelete, defaultMinutes = 15 }) {
   const [goal, setGoal] = useState('');
-  const [minutes, setMinutes] = useState(15); // Default to 15 minutes
+  const [minutes, setMinutes] = useState(defaultMinutes); // 마지막으로 성공한 렙의 타이머 길이를 기본값으로 사용
 
   const formatTime = (totalSeconds) => {
     const mins = Math.floor(totalSeconds / 60);
@@ -22,6 +22,8 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
   const handleSliderChange = (e) => {
     setMinutes(Number(e.target.value));
   };
+  
+
   
   const sliderFillPercent = ((minutes - 1) / (30 - 1)) * 100;
 

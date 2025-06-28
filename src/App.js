@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import "react-datepicker/dist/react-datepicker.css"; // Datepicker CSS
 import CurrentRep from './components/CurrentRep';
@@ -27,6 +27,7 @@ function App() {
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [isPaused, setIsPaused] = useState(true); // Start as paused
   const [endTime, setEndTime] = useState(null); // State to store the target end time
+  const [lastSuccessfulRepMinutes, setLastSuccessfulRepMinutes] = useState(15); // 마지막으로 성공한 렙의 타이머 길이 (기본값 15분)
 
   // 앱이 시작될 때 데이터를 가져옵니다 (로그인 상태에 따라 다른 소스에서 가져옴)
   const fetchReps = async () => {
@@ -123,12 +124,19 @@ function App() {
   useEffect(() => {
     if (isAuthenticated && user) {
       fetchReps();
+      fetchLastSuccessfulRepMinutes(); // 로그인 사용자의 마지막 성공 렙 시간 불러오기
     } else if (!isAuthenticated) {
       // 비로그인 상태일 때 로컬스토리지에서 가져오기
       try {
         const savedReps = localStorage.getItem('repList');
         if (savedReps) {
           setRepList(JSON.parse(savedReps));
+        }
+        
+        // 마지막 성공 렙 시간 불러오기
+        const savedLastSuccessfulRepMinutes = localStorage.getItem('lastSuccessfulRepMinutes');
+        if (savedLastSuccessfulRepMinutes) {
+          setLastSuccessfulRepMinutes(Number(savedLastSuccessfulRepMinutes));
         }
       } catch (error) {
         console.error('로컬스토리지에서 데이터 가져오기 실패:', error);
@@ -153,6 +161,63 @@ function App() {
            date.getMonth() === today.getMonth() &&
            date.getDate() === today.getDate();
   }
+
+  // 마지막 성공 렙 시간 불러오기 함수
+  const fetchLastSuccessfulRepMinutes = async () => {
+    if (!isAuthenticated || !user) return;
+    
+    try {
+      // user_settings 테이블에서 사용자 설정 불러오기
+      const { data, error } = await supabase
+        .from('user_settings')
+        .select('last_successful_rep_minutes')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('사용자 설정 불러오기 실패:', error);
+        return;
+      }
+      
+      if (data && data.last_successful_rep_minutes) {
+        console.log('마지막 성공 렙 시간 불러오기 성공:', data.last_successful_rep_minutes);
+        setLastSuccessfulRepMinutes(data.last_successful_rep_minutes);
+      }
+    } catch (error) {
+      console.error('마지막 성공 렙 시간 불러오기 중 오류 발생:', error);
+    }
+  };
+  
+  // 마지막 성공 렙 시간 저장 함수
+  const saveLastSuccessfulRepMinutes = async (minutes) => {
+    console.log('마지막 성공 렙 시간 저장:', minutes);
+    
+    if (isAuthenticated && user) {
+      try {
+        // user_settings 테이블에 사용자 설정 저장/업데이트
+        const { error } = await supabase
+          .from('user_settings')
+          .upsert({
+            user_id: user.id,
+            last_successful_rep_minutes: minutes,
+            updated_at: new Date().toISOString()
+          });
+        
+        if (error) {
+          console.error('사용자 설정 저장 실패:', error);
+        }
+      } catch (error) {
+        console.error('마지막 성공 렙 시간 저장 중 오류 발생:', error);
+      }
+    } else {
+      // 비로그인 상태: 로컬스토리지에 저장
+      try {
+        localStorage.setItem('lastSuccessfulRepMinutes', minutes.toString());
+      } catch (error) {
+        console.error('로컬스토리지에 마지막 성공 렙 시간 저장 실패:', error);
+      }
+    }
+  };
 
   // 새로운 Rep 시작 함수
   const handleStartRep = (goal, minutes) => {
@@ -259,6 +324,13 @@ function App() {
     }
     
     console.log('초 값 추출:', seconds, repToReview);
+    
+    // 성공한 렙인 경우 마지막 성공 렙 시간 저장
+    if (status === 'Achieved' && seconds > 0) {
+      const minutes = Math.ceil(seconds / 60);
+      setLastSuccessfulRepMinutes(minutes);
+      saveLastSuccessfulRepMinutes(minutes);
+    }
     
     // DB 스키마에 맞게 필드명 사용
     const reviewedRep = {
@@ -411,12 +483,14 @@ function App() {
         <div className="right-panel">
           {/* Current Rep area (core feature implementation target) */}
           <CurrentRep
+          key={lastSuccessfulRepMinutes} // 이 key가 변경될 때마다 컴포넌트가 리셋됩니다.
           rep={currentRep}
           remainingSeconds={remainingSeconds}
           isPaused={isPaused}
           onTogglePause={handleTogglePause}
           onStart={handleStartRep}
           onDelete={handleDeleteRep}
+          defaultMinutes={lastSuccessfulRepMinutes}
         />  
           {/* Dashboard area */}
           <Dashboard reps={filteredReps} setActiveTab={setActiveTab} />
