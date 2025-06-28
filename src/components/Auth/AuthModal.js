@@ -21,7 +21,7 @@ function AuthModal({ isOpen, onClose }) {
         </div>
         <div className="auth-modal-body">
           {mode === 'login' ? (
-            <Login onToggleMode={toggleMode} />
+            <Login onToggleMode={toggleMode} onClose={onClose} />
           ) : (
             <Signup onToggleMode={toggleMode} />
           )}

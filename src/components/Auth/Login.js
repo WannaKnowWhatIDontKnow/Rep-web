@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import './Auth.css';
 
-function Login({ onToggleMode }) {
+function Login({ onToggleMode, onClose }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,6 +25,9 @@ function Login({ onToggleMode }) {
     
     if (!result.success) {
       setError(result.error || '로그인 중 오류가 발생했습니다.');
+    } else {
+      // 로그인 성공 시 모달 닫기
+      if (onClose) onClose();
     }
     
     setLoading(false);

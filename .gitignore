@@ -23,3 +23,6 @@ yarn-error.log*
 # Supabase secrets
 src/supabaseClient.js
 Thumbs.db
+
+# 버그 리뷰 문서 (내부용)
+docs/bug_reviews.md

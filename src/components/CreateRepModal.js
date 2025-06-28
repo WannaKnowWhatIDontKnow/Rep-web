@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './CreateRepModal.css';
 
-function CreateRepModal({ isOpen, onClose, onStart, repToEdit }) {
+function CreateRepModal({ isOpen, onClose, onSubmit, repToEdit }) {
   const [goal, setGoal] = useState('');
   const [minutes, setMinutes] = useState(25);
   const [seconds, setSeconds] = useState(0);
@@ -24,7 +24,7 @@ function CreateRepModal({ isOpen, onClose, onStart, repToEdit }) {
 
   const handleStartClick = () => {
     if (goal.trim()) {
-      onStart(goal, minutes, seconds);
+      onSubmit(goal, minutes, seconds);
       setGoal('');
       setMinutes(25);
       setSeconds(0);
