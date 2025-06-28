@@ -17,6 +17,9 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# 운영체제 생성 파일
+# 운영체제 생성# misc
 .DS_Store
+
+# Supabase secrets
+src/supabaseClient.js
 Thumbs.db
