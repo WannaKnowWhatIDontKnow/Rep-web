@@ -3,7 +3,6 @@ import './App.css';
 import "react-datepicker/dist/react-datepicker.css"; // Datepicker CSS
 import CurrentRep from './components/CurrentRep';
 import RepList from './components/RepList';
-import CreateRepModal from './components/CreateRepModal';
 import RetrospectiveModal from './components/RetrospectiveModal';
 import Dashboard from './components/Dashboard';
 import CalendarSection from './components/CalendarSection'; // Import CalendarSection
@@ -18,10 +17,8 @@ function App() {
   const [selectedDate, setSelectedDate] = useState(new Date()); // State for the selected date
   const [currentRep, setCurrentRep] = useState(null);
   const [repList, setRepList] = useState([]);
-  const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [isRetroModalOpen, setRetroModalOpen] = useState(false);
   const [repToReview, setRepToReview] = useState(null);
-  const [repToEdit, setRepToEdit] = useState(null);
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'dashboard'
   
@@ -79,29 +76,41 @@ function App() {
             
             // 자동 새로고침 실패 시 사용자에게 알림
             alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-          } else if (error.code === 'PGRST301' || error.message.includes('policy')) {
-            alert('RLS 정책 오류: ' + error.message);
           }
-          return;
-        }
-        
-        if (data) {
+          
+          // 로컬스토리지에서 가져오기 시도
+          try {
+            const savedReps = localStorage.getItem('repList');
+            if (savedReps) {
+              console.log('로컬스토리지에서 데이터 가져오기 성공');
+              setRepList(JSON.parse(savedReps));
+            }
+          } catch (error) {
+            console.error('로컬스토리지에서 데이터 가져오기 실패:', error);
+          }
+        } else if (data) {
           console.log('가져온 데이터:', data.length, '개 항목');
-          // 데이터가 0개인 경우 추가 로그
-          if (data.length === 0) {
-            console.log('데이터가 없습니다. RLS 정책이 올바른지 확인해주세요.');
-          }
-          setRepList(data);
-        }
-      } else if (!isAuthenticated) {
-        // 비로그인 상태: 로컬스토리지에서 가져오기
-        try {
-          const savedReps = localStorage.getItem('repList');
-          if (savedReps) {
-            setRepList(JSON.parse(savedReps));
-          }
-        } catch (error) {
-          console.error('로컬스토리지에서 데이터 가져오기 실패:', error);
+          
+          // 데이터 필드 일관성 유지 (DB와 프론트엔드 간)
+          const normalizedData = data.map(rep => {
+            // initial_seconds와 initialSeconds 필드 일관성 유지
+            if (rep.initial_seconds !== undefined && rep.initialSeconds === undefined) {
+              rep.initialSeconds = rep.initial_seconds;
+            } else if (rep.initialSeconds !== undefined && rep.initial_seconds === undefined) {
+              rep.initial_seconds = rep.initialSeconds;
+            }
+            
+            // completed_at과 completedAt 필드 일관성 유지
+            if (rep.completed_at !== undefined && rep.completedAt === undefined) {
+              rep.completedAt = rep.completed_at;
+            } else if (rep.completedAt !== undefined && rep.completed_at === undefined) {
+              rep.completed_at = rep.completedAt;
+            }
+            
+            return rep;
+          });
+          
+          setRepList(normalizedData);
         }
       } else {
         console.log('사용자 정보가 없어 데이터를 가져올 수 없습니다.');
@@ -145,32 +154,42 @@ function App() {
            date.getDate() === today.getDate();
   }
 
-  const handleOpenCreateModal = () => {
+  // 새로운 Rep 시작 함수
+  const handleStartRep = (goal, minutes) => {
     // 렙 생성은 오늘 날짜에서만 가능
     if (!isToday(selectedDate)) {
       alert("렙 생성은 오늘 날짜에서만 가능합니다.");
       return;
     }
-    setRepToEdit(null); 
-    setCreateModalOpen(true);
-  };
-
-  const handleOpenEditModal = () => {
-    setIsPaused(true); // Pause timer when opening edit modal
-    setRepToEdit(currentRep);
-    setCreateModalOpen(true);
-  };
-
-  const handleCloseCreateModal = () => {
-    setCreateModalOpen(false);
-    setRepToEdit(null); // Clean up after modal closes
+    
+    const newInitialSeconds = minutes * 60; // 분을 초로 변환
+    
+    const newRep = {
+      id: Date.now(),
+      goal: goal,
+      initialSeconds: newInitialSeconds,
+      status: 'pending',
+    };
+    
+    setCurrentRep(newRep);
+    setRemainingSeconds(newInitialSeconds);
+    setEndTime(Date.now() + newInitialSeconds * 1000);
+    setIsPaused(false);
   };
 
   const handleCompleteRep = useCallback((completedRep) => {
+    console.log('Rep 완료 처리:', completedRep);
     new Audio('/alert.mp3').play().catch(() => console.log('Failed to play alert sound'));
+    
+    // 현재 Rep 초기화 및 회고 모달 표시
     setCurrentRep(null);
     setRepToReview(completedRep);
-    setRetroModalOpen(true);
+    
+    // 메인 스레드에서 모달 표시를 보장하기 위해 setTimeout 사용
+    setTimeout(() => {
+      console.log('회고 모달 표시 시도');
+      setRetroModalOpen(true);
+    }, 0);
   }, []);
 
   // More robust timer logic
@@ -183,8 +202,19 @@ function App() {
       const newRemaining = Math.round((endTime - Date.now()) / 1000);
 
       if (newRemaining <= 0) {
+        console.log('타이머 종료! Rep 완료 처리 시작');
+        clearInterval(timerId); // 타이머 즉시 중지
         setRemainingSeconds(0);
-        handleCompleteRep(currentRep);
+        
+        // 완료된 Rep 정보 설정
+        const completedRep = {
+          ...currentRep,
+          status: 'pending_review', // 리뷰 대기 상태로 설정
+          completed_at: new Date().toISOString()
+        };
+        
+        // 타이머 종료 후 즉시 모달 표시
+        handleCompleteRep(completedRep);
       } else {
         setRemainingSeconds(newRemaining);
       }
@@ -193,37 +223,7 @@ function App() {
     return () => clearInterval(timerId);
   }, [isPaused, currentRep, endTime, handleCompleteRep]);
 
-  const handleSaveRep = (goal, minutes, seconds) => {
-    const newInitialSeconds = minutes * 60 + seconds;
 
-    if (repToEdit) {
-      const elapsedSeconds = currentRep.initialSeconds - remainingSeconds;
-      const newRemainingSeconds = newInitialSeconds > elapsedSeconds ? newInitialSeconds - elapsedSeconds : 0;
-
-      setCurrentRep({
-        ...currentRep,
-        goal: goal,
-        initialSeconds: newInitialSeconds,
-      });
-      setRemainingSeconds(newRemainingSeconds);
-      setEndTime(Date.now() + newRemainingSeconds * 1000);
-      setIsPaused(false); // Resume after editing
-
-    } else {
-      const newRep = {
-        id: Date.now(),
-        goal: goal,
-        initialSeconds: newInitialSeconds,
-        status: 'pending',
-      };
-      setCurrentRep(newRep);
-      setRemainingSeconds(newInitialSeconds);
-      setEndTime(Date.now() + newInitialSeconds * 1000);
-      setIsPaused(false);
-    }
-
-    handleCloseCreateModal();
-  };
 
   const handleDeleteRep = () => {
     if (window.confirm('Are you sure you want to delete this Rep?')) {
@@ -248,12 +248,26 @@ function App() {
       return;
     }
     
+    console.log('회고 제출 시작:', status, notes, repToReview);
+    
+    // 원본 데이터에서 초 값 가져오기 (필드명 두 가지 모두 확인)
+    let seconds = 0;
+    if (typeof repToReview.initial_seconds === 'number' && !isNaN(repToReview.initial_seconds)) {
+      seconds = repToReview.initial_seconds;
+    } else if (typeof repToReview.initialSeconds === 'number' && !isNaN(repToReview.initialSeconds)) {
+      seconds = repToReview.initialSeconds;
+    }
+    
+    console.log('초 값 추출:', seconds, repToReview);
+    
+    // DB 스키마에 맞게 필드명 사용
     const reviewedRep = {
       goal: repToReview.goal,
-      initial_seconds: repToReview.initialSeconds,
       status: status,
       notes: notes,
-      completed_at: new Date().toISOString(), // 렙 종료 시각 기록
+      completed_at: new Date().toISOString(),
+      initial_seconds: seconds, // DB에서 사용하는 필드명으로 통일
+      user_id: repToReview.user_id // 사용자 ID 유지
     };
     
     if (isAuthenticated && user) {
@@ -313,6 +327,9 @@ function App() {
         // 저장 성공 확인
         if (insertData && insertData.length > 0) {
           console.log('데이터 저장 성공!', insertData);
+          
+          // 성공적으로 저장되면 목록에 추가 (fetchReps 호출 전에)
+          setRepList(prevList => [insertData[0], ...prevList]);
         } else {
           console.log('데이터 저장은 성공했지만 반환된 데이터가 없습니다.');
         }
@@ -337,6 +354,7 @@ function App() {
       setRepList(prevList => [localRep, ...prevList]);
     }
     
+    // 모달 닫기
     setRetroModalOpen(false);
     setRepToReview(null);
   };
@@ -393,14 +411,13 @@ function App() {
         <div className="right-panel">
           {/* Current Rep area (core feature implementation target) */}
           <CurrentRep
-            rep={currentRep}
-            remainingSeconds={remainingSeconds}
-            isPaused={isPaused}
-            onTogglePause={handleTogglePause}
-            onStartNew={handleOpenCreateModal}
-            onDelete={handleDeleteRep}
-            onEdit={handleOpenEditModal}
-          />
+          rep={currentRep}
+          remainingSeconds={remainingSeconds}
+          isPaused={isPaused}
+          onTogglePause={handleTogglePause}
+          onStart={handleStartRep}
+          onDelete={handleDeleteRep}
+        />  
           {/* Dashboard area */}
           <Dashboard reps={filteredReps} setActiveTab={setActiveTab} />
         </div>
@@ -409,16 +426,13 @@ function App() {
         <Statistics setActiveTab={setActiveTab} />
       )}
       
-      <CreateRepModal 
-        isOpen={isCreateModalOpen}
-        onClose={() => setCreateModalOpen(false)}
-        onSubmit={handleSaveRep}
-        repToEdit={repToEdit}
-      />
-      
+      {/* 회고 모달 - z-index를 높게 설정하여 항상 다른 요소들 위에 표시되도록 함 */}
       <RetrospectiveModal 
         isOpen={isRetroModalOpen}
-        onClose={() => setRetroModalOpen(false)}
+        onClose={() => {
+          console.log('회고 모달 닫기');
+          setRetroModalOpen(false);
+        }}
         onSubmit={handleRetroSubmit}
       />
       

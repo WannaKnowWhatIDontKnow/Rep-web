@@ -1,17 +1,74 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './CurrentRep.css';
 
-function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStartNew, onDelete, onEdit }) {
+function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, onDelete }) {
+  const [goal, setGoal] = useState('');
+  const [minutes, setMinutes] = useState(15); // Default to 15 minutes
 
   const formatTime = (totalSeconds) => {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    const mins = Math.floor(totalSeconds / 60);
+    const secs = totalSeconds % 60;
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  };
+  
+  const handleStartClick = () => {
+    if (goal.trim()) {
+      onStart(goal, minutes);
+    } else {
+      alert('Rep 목표를 입력해주세요!');
+    }
   };
 
+  const handleSliderChange = (e) => {
+    setMinutes(Number(e.target.value));
+  };
+  
+  const sliderFillPercent = ((minutes - 1) / (30 - 1)) * 100;
+
   const renderInitialState = () => (
-    <div className="current-rep-area initial" onClick={onStartNew}>
-      <div className="plus-icon">+</div>
+    <div className="current-rep-area initial">
+      <div className="initial-form-group">
+        <label className="initial-form-label" htmlFor="goal-input">
+          이번 Rep의 목표는 무엇인가요?
+        </label>
+        <input
+          id="goal-input"
+          type="text"
+          value={goal}
+          onChange={(e) => setGoal(e.target.value)}
+          placeholder="Setting a goal"
+          className="initial-goal-input"
+          autoFocus
+        />
+      </div>
+
+      <div className="initial-form-group">
+        <div className="time-setter-header">
+            <label className="initial-form-label">시간 설정</label>
+            <div className="time-slider-value">{minutes}<span>분</span></div>
+        </div>
+        <input
+            type="range"
+            min="1"
+            max="30"
+            value={minutes}
+            onChange={handleSliderChange}
+            className="time-slider"
+            style={{'--fill-percent': `${sliderFillPercent}%`}}
+        />
+        <div className="time-slider-labels">
+            <span>1분</span>
+            <span>30분</span>
+        </div>
+      </div>
+      
+      <button 
+        className="start-rep-button" 
+        onClick={handleStartClick} 
+        disabled={!goal.trim()}
+      >
+        시작하기
+      </button>
     </div>
   );
 
@@ -25,7 +82,6 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStartNew
       </div>
       <div className="rep-controls">
         <button onClick={onTogglePause}>{isPaused ? '▶' : 'II'}</button>
-        <button onClick={onEdit}>Edit</button>
         <button onClick={onDelete}>Delete</button>
       </div>
     </div>

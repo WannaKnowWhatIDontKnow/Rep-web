@@ -1,6 +1,66 @@
 /* RetrospectiveModal은 CreateRepModal과 대부분의 스타일을 공유합니다. */
 /* 여기서는 회고 모달에만 필요한 추가/변경 스타일을 정의합니다. */
 
+/* 모달 오버레이 - 화면 전체를 커버하고 다른 요소들보다 위에 표시되도록 함 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999; /* 매우 높은 z-index 값 설정 */
+}
+
+/* 모달 콘텐츠 */
+.modal-content {
+  background-color: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+/* 모달 헤더 */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #333;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999;
+}
+
+/* 모달 본문 */
+.modal-body {
+  padding: 24px;
+}
+
+/* 모달 풋터 */
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .retro-modal .form-group {
   margin-bottom: 20px;
 }
@@ -62,12 +122,12 @@
   background-color: #6E66FF;
   color: white;
   border: none;
-  padding: 14px 28px;
   border-radius: 12px;
+  padding: 14px 28px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: background-color 0.2s;
 }
 
 .submit-button:hover {
