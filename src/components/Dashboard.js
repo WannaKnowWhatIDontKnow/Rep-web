@@ -32,7 +32,16 @@ function Dashboard({ reps, setActiveTab }) {
   const achievedReps = reps.filter(rep => rep.status === 'Achieved').length;
   const failedReps = reps.filter(rep => rep.status === 'Failed').length;
   const changedCount = 0; // 'changed'는 0으로 고정합니다.
-  const totalTime = reps.reduce((sum, rep) => sum + rep.initialSeconds, 0);
+  
+  // 시간 계산 시 NaN 처리 및 데이터 형식 불일치 해결
+  const totalTime = reps.reduce((sum, rep) => {
+    // initial_seconds 또는 initialSeconds 필드 사용, 둘 다 없거나 NaN이면 0 사용
+    const seconds = rep.initial_seconds || rep.initialSeconds;
+    // 숫자가 아니거나 NaN인 경우 0으로 처리
+    return sum + (typeof seconds === 'number' && !isNaN(seconds) ? seconds : 0);
+  }, 0);
+  
+  console.log('대시보드 총 시간 계산:', totalTime, '초');
   
   const { isAuthenticated } = useAuth();
 

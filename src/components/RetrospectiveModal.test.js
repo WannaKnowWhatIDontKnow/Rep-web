@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import RetrospectiveModal from './RetrospectiveModal';
 
 describe('RetrospectiveModal 컴포넌트', () => {

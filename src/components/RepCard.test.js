@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import RepCard from './RepCard';
 
 describe('RepCard 컴포넌트', () => {

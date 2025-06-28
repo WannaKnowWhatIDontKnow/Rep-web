@@ -167,7 +167,9 @@ function Statistics({ setActiveTab }) {
       
       if (groupedData[key]) {
         groupedData[key].totalReps += 1;
-        groupedData[key].totalTime += (rep.initial_seconds || rep.initialSeconds || 0);
+        // 시간 계산 시 NaN 처리 및 데이터 형식 불일치 해결
+        const seconds = rep.initial_seconds || rep.initialSeconds;
+        groupedData[key].totalTime += (typeof seconds === 'number' && !isNaN(seconds) ? seconds : 0);
         
         if (rep.status === 'success') {
           groupedData[key].successCount += 1;
