@@ -9,14 +9,53 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 세션 갱신 함수 추가
+  const refreshSession = async () => {
+    try {
+          // 먼저 현재 세션이 유효한지 확인
+      const { data: { session: currentSession }, error: currentSessionError } = await supabase.auth.getSession();
+      
+      // 세션이 있고 만료되지 않았다면 그대로 사용
+      if (currentSession && new Date(currentSession.expires_at * 1000) > new Date()) {
+        console.log('현재 세션이 유효함, 새로고침 스킵');
+        setUser(currentSession.user);
+        return currentSession.user;
+      }
+      
+      // 세션이 없거나 만료된 경우에만 새로고침 시도
+      console.log('세션 새로고침 시도');
+      const { data, error } = await supabase.auth.refreshSession();
+      
+      if (error) {
+        console.error('세션 새로고침 실패:', error);
+        setUser(null);
+        return null;
+      }
+      
+      if (data && data.session) {
+        console.log('세션 새로고침 성공, 유효기간:', new Date(data.session.expires_at * 1000));
+        setUser(data.session.user);
+        return data.session.user;
+      } else {
+        console.error('세션 새로고침 후 세션이 없습니다');
+        setUser(null);
+        return null;
+      }
+    } catch (error) {
+      console.error('세션 갱신 중 예외 발생:', error);
+      setUser(null);
+      return null;
+    }
+  };
+
   useEffect(() => {
     // 현재 로그인된 사용자 정보를 확인합니다
     const checkUser = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user || null);
+        await refreshSession();
       } catch (error) {
         console.error('사용자 세션 확인 중 오류:', error);
+        setUser(null);
       } finally {
         setLoading(false);
       }
@@ -28,7 +67,15 @@ export function AuthProvider({ children }) {
     // 로그인 상태 변화를 감지하는 이벤트 리스너 설정
     const { data: authListener } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setUser(session?.user || null);
+        console.log('인증 상태 변경:', event);
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          setUser(session?.user || null);
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+        } else {
+          // 다른 이벤트의 경우 세션을 다시 확인
+          await refreshSession();
+        }
         setLoading(false);
       }
     );
@@ -55,10 +102,31 @@ export function AuthProvider({ children }) {
   // 로그인 함수
   const signIn = async (email, password) => {
     try {
+      console.log('로그인 시도:', email);
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('로그인 오류:', error);
+        throw error;
+      }
+      
+      if (data && data.session) {
+        console.log('로그인 성공, 세션 설정:', data.session.user.id);
+        // 세션 설정
+        setUser(data.session.user);
+        
+        // 세션 새로고침 테스트
+        setTimeout(async () => {
+          console.log('세션 상태 확인 시도');
+          await refreshSession();
+        }, 1000);
+      } else {
+        console.error('로그인 후 세션이 없습니다');
+      }
+      
       return { success: true, data };
     } catch (error) {
+      console.error('로그인 예외 발생:', error);
       return { success: false, error: error.message };
     }
   };

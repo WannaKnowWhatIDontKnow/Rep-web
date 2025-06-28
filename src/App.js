@@ -32,40 +32,99 @@ function App() {
   const [endTime, setEndTime] = useState(null); // State to store the target end time
 
   // 앱이 시작될 때 데이터를 가져옵니다 (로그인 상태에 따라 다른 소스에서 가져옴)
-  useEffect(() => {
-    async function fetchReps() {
-      try {
-        if (isAuthenticated) {
-          // 로그인 상태: 데이터베이스에서 가져오기
-          const { data, error } = await supabase
-            .from('reps')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('completed_at', { ascending: false });
-            
-          if (error) {
-            console.error('데이터베이스에서 목표 가져오기 실패:', error);
-            return;
-          }
+  const fetchReps = async () => {
+    try {
+      if (isAuthenticated && user) {
+        console.log('데이터 가져오기 시도 - 사용자 ID:', user.id);
+        
+        // 로그인 상태: 데이터베이스에서 가져오기
+        const { data, error } = await supabase
+          .from('reps')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('completed_at', { ascending: false });
           
-          if (data) setRepList(data);
-        } else {
-          // 비로그인 상태: 로컬스토리지에서 가져오기
-          try {
-            const savedReps = localStorage.getItem('repList');
-            if (savedReps) {
-              setRepList(JSON.parse(savedReps));
+        if (error) {
+          console.error('데이터베이스에서 목표 가져오기 실패:', error);
+          
+          // 인증 오류인 경우 사용자에게 알림
+          if (error.code === '403' || error.message.includes('JWT')) {
+            console.log('인증 오류 발생, 세션 만료 가능성');
+            
+            try {
+              // AuthContext의 refreshSession 함수를 호출하는 것이 좋지만, 여기서는 직접 구현
+              const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+              
+              if (!refreshError && refreshData && refreshData.session) {
+                console.log('세션 새로고침 성공, 데이터 다시 가져오기 시도');
+                
+                // 세션 새로고침 성공, 다시 시도
+                const { data: retryData, error: retryError } = await supabase
+                  .from('reps')
+                  .select('*')
+                  .eq('user_id', refreshData.session.user.id)
+                  .order('completed_at', { ascending: false });
+                  
+                if (!retryError && retryData) {
+                  console.log('세션 새로고침 후 데이터 가져오기 성공:', retryData.length, '개 항목');
+                  setRepList(retryData);
+                  return;
+                } else if (retryError) {
+                  console.error('새로고침 후 데이터 가져오기 실패:', retryError);
+                }
+              }
+            } catch (refreshException) {
+              console.error('세션 새로고침 중 예외 발생:', refreshException);
             }
-          } catch (error) {
-            console.error('로컬스토리지에서 데이터 가져오기 실패:', error);
+            
+            // 자동 새로고침 실패 시 사용자에게 알림
+            alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+          } else if (error.code === 'PGRST301' || error.message.includes('policy')) {
+            alert('RLS 정책 오류: ' + error.message);
           }
+          return;
+        }
+        
+        if (data) {
+          console.log('가져온 데이터:', data.length, '개 항목');
+          // 데이터가 0개인 경우 추가 로그
+          if (data.length === 0) {
+            console.log('데이터가 없습니다. RLS 정책이 올바른지 확인해주세요.');
+          }
+          setRepList(data);
+        }
+      } else if (!isAuthenticated) {
+        // 비로그인 상태: 로컬스토리지에서 가져오기
+        try {
+          const savedReps = localStorage.getItem('repList');
+          if (savedReps) {
+            setRepList(JSON.parse(savedReps));
+          }
+        } catch (error) {
+          console.error('로컬스토리지에서 데이터 가져오기 실패:', error);
+        }
+      } else {
+        console.log('사용자 정보가 없어 데이터를 가져올 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('데이터 가져오기 중 오류 발생:', error);
+    }
+  };
+  
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      fetchReps();
+    } else if (!isAuthenticated) {
+      // 비로그인 상태일 때 로컬스토리지에서 가져오기
+      try {
+        const savedReps = localStorage.getItem('repList');
+        if (savedReps) {
+          setRepList(JSON.parse(savedReps));
         }
       } catch (error) {
-        console.error('데이터 가져오기 중 오류 발생:', error);
+        console.error('로컬스토리지에서 데이터 가져오기 실패:', error);
       }
     }
-    
-    fetchReps();
   }, [isAuthenticated, user]);
   
   // 비로그인 상태일 때만 로컬스토리지에 저장
@@ -184,6 +243,11 @@ function App() {
   };
 
   const handleRetroSubmit = async (status, notes) => {
+    if (!repToReview) {
+      console.error('repToReview가 없습니다.');
+      return;
+    }
+    
     const reviewedRep = {
       goal: repToReview.goal,
       initial_seconds: repToReview.initialSeconds,
@@ -192,35 +256,75 @@ function App() {
       completed_at: new Date().toISOString(), // 렙 종료 시각 기록
     };
     
-    if (isAuthenticated) {
+    if (isAuthenticated && user) {
       // 로그인 상태: 데이터베이스에 저장
       try {
-        // 사용자 ID 추가
-        reviewedRep.user_id = user.id;
+        // 세션 확인 - 현재 세션이 유효한지 확인
+        console.log('현재 세션 확인 중');
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         
-        const { data, error } = await supabase
+        if (sessionError || !session) {
+          console.error('세션 확인 실패:', sessionError || '세션 없음');
+          
+          // 세션이 없으면 새로고침 시도
+          console.log('세션 새로고침 시도');
+          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
+          
+          if (refreshError || !refreshData || !refreshData.session) {
+            console.error('세션 새로고침 실패:', refreshError || '세션 없음');
+            alert('세션이 만료되었습니다. 다시 로그인해주세요.');
+            return;
+          }
+          
+          // 새로고침 성공 시 사용자 ID 업데이트
+          reviewedRep.user_id = refreshData.session.user.id;
+          console.log('세션 새로고침 성공:', refreshData.session.user.id);
+        } else {
+          // 현재 세션이 유효한 경우
+          reviewedRep.user_id = session.user.id;
+          console.log('현재 세션 유효:', session.user.id);
+        }
+        
+        // 데이터 저장 시도
+        console.log('데이터 저장 시도:', reviewedRep);
+        
+        // Supabase에 데이터 저장
+        const { data: insertData, error } = await supabase
           .from('reps')
-          .insert([reviewedRep]);
+          .insert([reviewedRep])
+          .select(); // 저장 후 데이터 반환 요청
           
         if (error) {
           console.error('데이터베이스 저장 실패:', error);
+          
+          // 오류 유형 확인
+          if (error.code === 'PGRST301' || error.message.includes('policy')) {
+            console.error('RLS 정책 오류:', error.message);
+            alert('RLS 정책 오류: ' + error.message + '\n\nSupabase 대시보드에서 RLS 정책을 확인해주세요.');
+          } else if (error.code === '403' || error.message.includes('JWT')) {
+            console.error('인증 오류:', error.message);
+            alert('인증 오류: ' + error.message + '\n\n다시 로그인해주세요.');
+          } else {
+            alert('제출 중 오류가 발생했습니다: ' + error.message);
+          }
           return;
         }
         
-        // 성공적으로 저장되면 목록 새로고침
-        const { data: updatedData, error: fetchError } = await supabase
-          .from('reps')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('completed_at', { ascending: false });
-          
-        if (fetchError) {
-          console.error('데이터 새로고침 실패:', fetchError);
-        } else if (updatedData) {
-          setRepList(updatedData);
+        // 저장 성공 확인
+        if (insertData && insertData.length > 0) {
+          console.log('데이터 저장 성공!', insertData);
+        } else {
+          console.log('데이터 저장은 성공했지만 반환된 데이터가 없습니다.');
         }
+        
+        // 성공적으로 저장되면 목록 새로고침
+        await fetchReps(); // 추출된 fetchReps 함수 호출
+        
+        // 오늘 날짜로 선택 변경 (데이터가 보이도록)
+        setSelectedDate(new Date());
       } catch (err) {
         console.error('데이터 처리 중 오류 발생:', err);
+        alert('제출 중 오류가 발생했습니다: ' + err.message);
       }
     } else {
       // 비로그인 상태: 로컬스토리지에 저장
