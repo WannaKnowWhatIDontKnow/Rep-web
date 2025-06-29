@@ -6,6 +6,14 @@
   border: 1px solid #e8e8e8;
   border-radius: 6px;
   margin-bottom: 8px; /* 카드 사이의 간격 */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rep-card:hover {
+  background-color: #f0f0f0;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 
@@ -16,6 +24,7 @@
   white-space: nowrap; /* 줄바꿈 방지 */
   overflow: hidden; /* 내용이 넘치면 숨김 */
   text-overflow: ellipsis; /* 내용이 넘치면 ...으로 표시 */
+  font-size: 14px; /* 폰트 크기 조정 */
 }
 
 /* 시간 표시 스타일 */

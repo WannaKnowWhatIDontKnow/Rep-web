@@ -1,7 +1,7 @@
 import React from 'react';
 import './RepCard.css';
 
-function RepCard({ rep }) {
+function RepCard({ rep, onClick }) {
 
 
 
@@ -14,7 +14,7 @@ function RepCard({ rep }) {
   };
 
   return (
-    <div className="rep-card">
+    <div className="rep-card" onClick={onClick}>
       <span className="rep-card-goal">{rep.goal}</span>
       <span className="rep-card-time">{formatInitialTime(rep.initialSeconds)}</span>
     </div>

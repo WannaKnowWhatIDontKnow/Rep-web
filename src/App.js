@@ -14,6 +14,7 @@ import { useAuth } from './contexts/AuthContext';
 import AuthModal from './components/Auth/AuthModal';
 import UserProfile from './components/Auth/UserProfile';
 import ConfirmModal from './components/ConfirmModal'; // 확인 모달 컴포넌트 추가
+import RepDetailModal from './components/RepDetailModal'; // Rep 상세 정보 모달 컴포넌트 추가
 
 // App component (the overall structure of our website) is defined here.
 function App() {
@@ -25,6 +26,10 @@ function App() {
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'dashboard'
   const [showConfirmModal, setShowConfirmModal] = useState(false); // 확인 모달 표시 상태
+  const [selectedRep, setSelectedRep] = useState(null); // 선택된 Rep 상태 추가
+  const [isDetailModalOpen, setDetailModalOpen] = useState(false); // 상세 정보 모달 표시 상태 추가
+  const [currentPage, setCurrentPage] = useState(1); // 페이지네이션을 위한 현재 페이지 상태
+  const itemsPerPage = 10; // 한 페이지에 보여줄 아이템 개수
   
   const { user, isAuthenticated } = useAuth();
 
@@ -484,6 +489,13 @@ function App() {
            repDate.getMonth() === selectedDate.getMonth() &&
            repDate.getDate() === selectedDate.getDate();
   });
+  
+  // 페이지네이션을 위한 데이터 계산
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredReps.slice(indexOfFirstItem, indexOfLastItem);
+  
+  const totalPages = Math.ceil(filteredReps.length / itemsPerPage);
 
   // 로그인/회원가입 모달 열기
   const handleOpenAuthModal = () => {
@@ -494,6 +506,22 @@ function App() {
   const handleCloseAuthModal = () => {
     setAuthModalOpen(false);
   };
+  
+  // Rep 카드 클릭 시 실행될 함수
+  const handleRepCardClick = (rep) => {
+    setSelectedRep(rep);
+    setDetailModalOpen(true);
+  };
+  
+  // 페이지 변경 함수
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  
+  // 날짜가 변경될 때 페이지를 1로 리셋
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedDate]);
 
   return (
     // Container for the entire app
@@ -521,7 +549,14 @@ function App() {
             setSelectedDate={setSelectedDate} 
           />
           {/* List area (core feature implementation target) */}
-          <RepList reps={filteredReps} onDropRep={handleEarlyCompleteRep} />
+          <RepList 
+            reps={currentItems} 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            onDropRep={handleEarlyCompleteRep} 
+            onRepCardClick={handleRepCardClick} 
+          />
         </div>
         <div className="right-panel">
           {/* Current Rep area (core feature implementation target) */}
@@ -560,6 +595,13 @@ function App() {
         isOpen={showConfirmModal}
         onConfirm={confirmEarlyComplete}
         onCancel={() => setShowConfirmModal(false)}
+      />
+      
+      {/* Rep 상세 정보 모달 */}
+      <RepDetailModal 
+        isOpen={isDetailModalOpen}
+        onClose={() => setDetailModalOpen(false)}
+        rep={selectedRep}
       />
     </div>
     </DndProvider>
