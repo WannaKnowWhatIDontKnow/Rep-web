@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import "react-datepicker/dist/react-datepicker.css"; // Datepicker CSS
 import CurrentRep from './components/CurrentRep';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 import RepList from './components/RepList';
 import RetrospectiveModal from './components/RetrospectiveModal';
 import Dashboard from './components/Dashboard';
@@ -241,13 +243,20 @@ function App() {
     setIsPaused(false);
   };
 
-  const handleCompleteRep = useCallback((completedRep) => {
-    console.log('Rep 완료 처리:', completedRep);
+  const handleCompleteRep = useCallback((completedRep, finalSeconds) => {
+    console.log('Rep 완료 처리:', completedRep, '최종 시간:', finalSeconds);
     new Audio('/alert.mp3').play().catch(() => console.log('Failed to play alert sound'));
     
     // 현재 Rep 초기화 및 회고 모달 표시
     setCurrentRep(null);
-    setRepToReview(completedRep);
+    
+    // finalSeconds 값을 포함하여 repToReview 설정
+    const reviewRep = {
+      ...completedRep,
+      finalSeconds: finalSeconds // 최종 시간 추가
+    };
+    
+    setRepToReview(reviewRep);
     
     // 메인 스레드에서 모달 표시를 보장하기 위해 setTimeout 사용
     setTimeout(() => {
@@ -255,6 +264,27 @@ function App() {
       setRetroModalOpen(true);
     }, 0);
   }, []);
+  
+  // 중간에 Rep을 완료하는 함수 (드래그 앤 드롭으로 호출)
+  const handleEarlyCompleteRep = () => {
+    console.log('handleEarlyCompleteRep 함수 실행됨!', currentRep);
+    if (!currentRep) {
+      console.error('조기 완료할 Rep이 없습니다.');
+      return;
+    }
+    
+    // 실제 경과 시간 계산
+    const elapsedSeconds = currentRep.initialSeconds - remainingSeconds;
+    
+    // 완료된 Rep 정보 설정
+    const completedRep = {
+      ...currentRep,
+      completed_at: new Date().toISOString()
+    };
+    
+    // handleCompleteRep 호출하여 회고 모달 표시
+    handleCompleteRep(completedRep, elapsedSeconds);
+  };
 
   // More robust timer logic
   useEffect(() => {
@@ -277,7 +307,8 @@ function App() {
         };
         
         // 타이머 종료 후 즉시 모달 표시
-        handleCompleteRep(completedRep);
+        // 타이머가 정상적으로 종료된 경우 초기 설정 시간 그대로 전달
+        handleCompleteRep(completedRep, currentRep.initialSeconds);
       } else {
         setRemainingSeconds(newRemaining);
       }
@@ -293,6 +324,8 @@ function App() {
       setCurrentRep(null);
     }
   };
+
+  // 이전 handleDropRep 함수는 삭제 - handleEarlyCompleteRep로 대체됨
 
   const handleTogglePause = () => {
     setIsPaused(prevIsPaused => {
@@ -313,15 +346,18 @@ function App() {
     
     console.log('회고 제출 시작:', notes, repToReview);
     
-    // 원본 데이터에서 초 값 가져오기 (필드명 두 가지 모두 확인)
+    // 이제 finalSeconds 값을 사용
     let seconds = 0;
-    if (typeof repToReview.initial_seconds === 'number' && !isNaN(repToReview.initial_seconds)) {
+    if (typeof repToReview.finalSeconds === 'number' && !isNaN(repToReview.finalSeconds)) {
+      // 중간에 완료한 경우 또는 정상 완료된 경우 finalSeconds 사용
+      seconds = repToReview.finalSeconds;
+    } else if (typeof repToReview.initial_seconds === 'number' && !isNaN(repToReview.initial_seconds)) {
       seconds = repToReview.initial_seconds;
     } else if (typeof repToReview.initialSeconds === 'number' && !isNaN(repToReview.initialSeconds)) {
       seconds = repToReview.initialSeconds;
     }
     
-    console.log('초 값 추출:', seconds, repToReview);
+    console.log('최종 시간 값 추출:', seconds, repToReview);
     
     // DB 스키마에 맞게 필드명 사용
     const reviewedRep = {
@@ -445,7 +481,8 @@ function App() {
 
   return (
     // Container for the entire app
-    <div className="app-container">
+    <DndProvider backend={HTML5Backend}>
+      <div className="app-container">
       {/* 헤더 영역에 로그인/회원가입 버튼 추가 */}
       <div className="app-header">
         <h1>Rep</h1>
@@ -468,7 +505,7 @@ function App() {
             setSelectedDate={setSelectedDate} 
           />
           {/* List area (core feature implementation target) */}
-          <RepList reps={filteredReps} />
+          <RepList reps={filteredReps} onDropRep={handleEarlyCompleteRep} />
         </div>
         <div className="right-panel">
           {/* Current Rep area (core feature implementation target) */}
@@ -506,6 +543,7 @@ function App() {
         onClose={handleCloseAuthModal}
       />
     </div>
+    </DndProvider>
   );
 }
 

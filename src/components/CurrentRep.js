@@ -1,9 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { useDrag } from 'react-dnd';
 import './CurrentRep.css';
 
 function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, onDelete, defaultMinutes = 15 }) {
   const [goal, setGoal] = useState('');
   const [minutes, setMinutes] = useState(defaultMinutes); // 마지막으로 성공한 렙의 타이머 길이를 기본값으로 사용
+  const [showForm, setShowForm] = useState(false);
+  
+  // useDrag 훈을 컴포넌트 최상위 레벨로 이동
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: 'REP_CARD', // 드래그 아이템의 종류를 정의
+    item: () => ({ rep }), // 드래그할 때 함께 전달할 데이터
+    canDrag: !!rep, // rep이 있을 때만 드래그 가능
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }), [rep]); // rep이 변경될 때마다 훈 재실행
 
   const formatTime = (totalSeconds) => {
     const mins = Math.floor(totalSeconds / 60);
@@ -14,6 +26,7 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
   const handleStartClick = () => {
     if (goal.trim()) {
       onStart(goal, minutes);
+      setShowForm(false); // Rep 생성 후 폼 숨기기
     } else {
       alert('Rep 목표를 입력해주세요!');
     }
@@ -27,7 +40,7 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
   
   const sliderFillPercent = ((minutes - 1) / (30 - 1)) * 100;
 
-  const renderInitialState = () => (
+  const renderCreationForm = () => (
     <div className="current-rep-area initial">
       <div className="initial-form-group">
         <label className="initial-form-label" htmlFor="goal-input">
@@ -64,32 +77,52 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
         </div>
       </div>
       
-      <button 
-        className="start-rep-button" 
-        onClick={handleStartClick} 
-        disabled={!goal.trim()}
+      <div className="form-buttons">
+        <button 
+          className="start-rep-button" 
+          onClick={handleStartClick} 
+          disabled={!goal.trim()}
+        >
+          시작하기
+        </button>
+        <button 
+          className="cancel-button" 
+          onClick={() => setShowForm(false)}
+        >
+          취소
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderActiveState = () => {
+    return (
+      <div 
+        className="current-rep-area active" 
+        ref={drag} 
+        style={{ opacity: isDragging ? 0.5 : 1, cursor: 'move' }}
       >
-        시작하기
-      </button>
+        <div className="rep-goal">
+          <span>{rep.goal}</span>
+        </div>
+        <div className="rep-timer">
+          {formatTime(remainingSeconds)}
+        </div>
+        <div className="rep-controls">
+          <button onClick={onTogglePause}>{isPaused ? '▶' : 'II'}</button>
+          <button onClick={onDelete}>Delete</button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPlusButton = () => (
+    <div className="current-rep-area plus-button-container">
+      <button className="plus-icon" onClick={() => setShowForm(true)}>+</button>
     </div>
   );
 
-  const renderActiveState = () => (
-    <div className="current-rep-area active">
-      <div className="rep-goal">
-        <span>{rep.goal}</span>
-      </div>
-      <div className="rep-timer">
-        {formatTime(remainingSeconds)}
-      </div>
-      <div className="rep-controls">
-        <button onClick={onTogglePause}>{isPaused ? '▶' : 'II'}</button>
-        <button onClick={onDelete}>Delete</button>
-      </div>
-    </div>
-  );
-
-  return rep ? renderActiveState() : renderInitialState();
+  return rep ? renderActiveState() : (showForm ? renderCreationForm() : renderPlusButton());
 }
 
 export default CurrentRep;

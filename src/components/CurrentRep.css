@@ -17,8 +17,34 @@
   justify-content: space-between;
 }
 
+/* 플러스 버튼 컨테이너 스타일 */
+.plus-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
 .plus-icon {
-  display: none; /* The plus icon is no longer used */
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #6E66FF;
+  color: white;
+  font-size: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(110, 102, 255, 0.3);
+}
+
+.plus-icon:hover {
+  transform: scale(1.1);
+  background-color: #5851d1;
+  box-shadow: 0 6px 14px rgba(110, 102, 255, 0.4);
 }
 
 /* 활성 상태 (타이머 작동) */
@@ -195,4 +221,34 @@
   color: #a0a0a0;
   cursor: not-allowed;
   transform: none;
+}
+
+/* 폼 버튼 컨테이너 */
+.form-buttons {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+
+/* 취소 버튼 스타일 */
+.cancel-button {
+  background-color: #f0f0f0;
+  color: #555;
+  border: none;
+  flex: 1;
+  padding: 14px 0;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.cancel-button:hover {
+  background-color: #e0e0e0;
+}
+
+/* 시작 버튼 너비 조정 */
+.start-rep-button {
+  flex: 2;
 }
