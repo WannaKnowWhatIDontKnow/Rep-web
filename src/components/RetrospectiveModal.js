@@ -2,16 +2,10 @@ import React, { useState } from 'react';
 import './RetrospectiveModal.css';
 
 function RetrospectiveModal({ isOpen, onClose, onSubmit }) {
-  const [status, setStatus] = useState(null);
   const [notes, setNotes] = useState('');
 
   const handleSubmit = () => {
-    if (!status) {
-      alert('Please select a status for the Rep!');
-      return;
-    }
-    onSubmit(status, notes);
-    setStatus(null);
+    onSubmit(notes);
     setNotes('');
   };
 
@@ -27,23 +21,7 @@ function RetrospectiveModal({ isOpen, onClose, onSubmit }) {
           <button className="close-button" onClick={onClose}>X</button>
         </div>
         <div className="modal-body">
-          <div className="form-group">
-            <label>How was this Rep? (Required)</label>
-            <div className="status-buttons">
-              <button 
-                className={`status-btn ${status === 'Achieved' ? 'selected' : ''}`}
-                onClick={() => setStatus('Achieved')}
-              >Achieved</button>
-              <button 
-                className={`status-btn ${status === 'Failed' ? 'selected' : ''}`}
-                onClick={() => setStatus('Failed')}
-              >Failed</button>
-              <button 
-                className={`status-btn ${status === 'Goal Changed' ? 'selected' : ''}`}
-                onClick={() => setStatus('Goal Changed')}
-              >Goal Changed</button>
-            </div>
-          </div>
+
           <div className="form-group">
             <label htmlFor="notes-input">What's next? (Optional)</label>
             <textarea

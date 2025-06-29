@@ -75,46 +75,7 @@
   background-color: #328DFF;
 }
 
-/* Ratio 섹션 스타일 */
-.ratio-wrapper {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
 
-.ratio-card {
-  border-radius: 16px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-
-.ratio-card span {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.ratio-card .digital-display-container {
-  justify-content: center;
-  width: 100%;
-}
-
-.ratio-card .digital-display-container .digit-box {
-  width: 36px;
-  height: 48px;
-  font-size: 24px;
-  border-radius: 8px;
-}
-
-.ratio-card span {
-  display: block;
-  margin-top: 5px;
-  font-size: 14px;
-  color: #666;
-  text-align: center;
-}
 
 /* 통계 대시보드 이동 버튼 스타일 */
 .stats-navigation {
@@ -156,29 +117,4 @@
   font-size: 14px;
   margin-top: 8px;
   font-style: italic;
-}
-
-/* Ratio 각 항목별 색상 */
-.ratio-card.success {
-  background-color: #E6F7EB;
-  color: #0D7B31;
-}
-.ratio-card.success .digit-box {
-  background-color: #34A853;
-}
-
-.ratio-card.fail {
-  background-color: #FFF0F0;
-  color: #C72C2C;
-}
-.ratio-card.fail .digit-box {
-  background-color: #EA4335;
-}
-
-.ratio-card.changed {
-  background-color: #FFF9E6;
-  color: #B38600;
-}
-.ratio-card.changed .digit-box {
-  background-color: #FBBC05;
 }

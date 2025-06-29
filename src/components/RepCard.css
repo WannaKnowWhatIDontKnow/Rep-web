@@ -8,20 +8,7 @@
   margin-bottom: 8px; /* 카드 사이의 간격 */
 }
 
-/* 상태 표시 동그라미의 기본 스타일 */
-.status-indicator {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%; /* 원 모양으로 만듭니다. */
-  margin-right: 12px;
-  flex-shrink: 0; /* 크기가 줄어들지 않도록 고정 */
-}
 
-/* 상태에 따른 색상 정의 */
-.status-indicator.pending { background-color: #d9d9d9; } /* 회고 전: 회색 */
-.status-indicator.achieved { background-color: #52c41a; } /* 달성: 초록색 */
-.status-indicator.failed { background-color: #f5222d; } /* 미달성: 빨간색 */
-.status-indicator.changed { background-color: #faad14; } /* 목표 변경: 노란색 */
 
 /* 목표 텍스트 스타일 */
 .rep-card-goal {

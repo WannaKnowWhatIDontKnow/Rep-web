@@ -2,7 +2,6 @@ import React from 'react';
 import './Dashboard.css';
 import { TbRepeat } from 'react-icons/tb';
 import { IoTimeOutline } from 'react-icons/io5';
-import { RiPieChartLine } from 'react-icons/ri';
 import { useAuth } from '../contexts/AuthContext';
 
 // 각 문자를 개별 박스에 렌더링하는 컴포넌트입니다.
@@ -29,9 +28,6 @@ const formatTime = (totalSeconds) => {
 
 function Dashboard({ reps, setActiveTab }) {
   const totalReps = reps.length;
-  const achievedReps = reps.filter(rep => rep.status === 'Achieved').length;
-  const failedReps = reps.filter(rep => rep.status === 'Failed').length;
-  const changedCount = 0; // 'changed'는 0으로 고정합니다.
   
   // 시간 계산 시 NaN 처리 및 데이터 형식 불일치 해결
   const totalTime = reps.reduce((sum, rep) => {
@@ -67,27 +63,7 @@ function Dashboard({ reps, setActiveTab }) {
         </div>
       </div>
 
-      {/* Ratio 섹션 */}
-      <div className="dash-section">
-        <div className="dash-section-header">
-          <RiPieChartLine className="header-icon ratio-icon" />
-          <h2>Ratio</h2>
-        </div>
-        <div className="ratio-wrapper">
-          <div className="ratio-card success">
-            <DigitalDisplay value={String(achievedReps).padStart(2, '0')} />
-            <span>Success</span>
-          </div>
-          <div className="ratio-card fail">
-            <DigitalDisplay value={String(failedReps).padStart(2, '0')} />
-            <span>Fail</span>
-          </div>
-          <div className="ratio-card changed">
-            <DigitalDisplay value={String(changedCount).padStart(2, '0')} />
-            <span>Changed</span>
-          </div>
-        </div>
-      </div>
+
       
       {/* 통계 대시보드로 이동하는 버튼 */}
       <div className="dash-section stats-navigation">

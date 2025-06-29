@@ -232,8 +232,7 @@ function App() {
     const newRep = {
       id: Date.now(),
       goal: goal,
-      initialSeconds: newInitialSeconds,
-      status: 'pending',
+      initialSeconds: newInitialSeconds
     };
     
     setCurrentRep(newRep);
@@ -274,7 +273,6 @@ function App() {
         // 완료된 Rep 정보 설정
         const completedRep = {
           ...currentRep,
-          status: 'pending_review', // 리뷰 대기 상태로 설정
           completed_at: new Date().toISOString()
         };
         
@@ -307,13 +305,13 @@ function App() {
     });
   };
 
-  const handleRetroSubmit = async (status, notes) => {
+  const handleRetroSubmit = async (notes) => {
     if (!repToReview) {
       console.error('repToReview가 없습니다.');
       return;
     }
     
-    console.log('회고 제출 시작:', status, notes, repToReview);
+    console.log('회고 제출 시작:', notes, repToReview);
     
     // 원본 데이터에서 초 값 가져오기 (필드명 두 가지 모두 확인)
     let seconds = 0;
@@ -325,17 +323,9 @@ function App() {
     
     console.log('초 값 추출:', seconds, repToReview);
     
-    // 성공한 렙인 경우 마지막 성공 렙 시간 저장
-    if (status === 'Achieved' && seconds > 0) {
-      const minutes = Math.ceil(seconds / 60);
-      setLastSuccessfulRepMinutes(minutes);
-      saveLastSuccessfulRepMinutes(minutes);
-    }
-    
     // DB 스키마에 맞게 필드명 사용
     const reviewedRep = {
       goal: repToReview.goal,
-      status: status,
       notes: notes,
       completed_at: new Date().toISOString(),
       initial_seconds: seconds, // DB에서 사용하는 필드명으로 통일

@@ -119,10 +119,7 @@ function Statistics({ setActiveTab }) {
         groupedData[key] = { 
           name: key, 
           totalReps: 0, 
-          totalTime: 0, 
-          successRatio: 0,
-          successCount: 0,
-          failCount: 0
+          totalTime: 0
         };
       }
     } else if (timeRange === 'month') {
@@ -134,10 +131,7 @@ function Statistics({ setActiveTab }) {
         groupedData[key] = { 
           name: key, 
           totalReps: 0, 
-          totalTime: 0, 
-          successRatio: 0,
-          successCount: 0,
-          failCount: 0
+          totalTime: 0
         };
       }
     } else if (timeRange === 'year') {
@@ -149,10 +143,7 @@ function Statistics({ setActiveTab }) {
         groupedData[key] = { 
           name: key, 
           totalReps: 0, 
-          totalTime: 0, 
-          successRatio: 0,
-          successCount: 0,
-          failCount: 0
+          totalTime: 0
         };
       }
     }
@@ -170,20 +161,6 @@ function Statistics({ setActiveTab }) {
         // 시간 계산 시 NaN 처리 및 데이터 형식 불일치 해결
         const seconds = rep.initial_seconds || rep.initialSeconds;
         groupedData[key].totalTime += (typeof seconds === 'number' && !isNaN(seconds) ? seconds : 0);
-        
-        if (rep.status === 'success') {
-          groupedData[key].successCount += 1;
-        } else {
-          groupedData[key].failCount += 1;
-        }
-      }
-    });
-    
-    // 성공률 계산
-    Object.keys(groupedData).forEach(key => {
-      const total = groupedData[key].successCount + groupedData[key].failCount;
-      if (total > 0) {
-        groupedData[key].successRatio = Math.round((groupedData[key].successCount / total) * 100);
       }
     });
     
@@ -202,35 +179,20 @@ function Statistics({ setActiveTab }) {
   const calculateTotals = () => {
     let totalReps = 0;
     let totalTime = 0;
-    let totalSuccess = 0;
-    let totalFail = 0;
     
     repData.forEach(data => {
       totalReps += data.totalReps;
       totalTime += data.totalTime;
-      totalSuccess += data.successCount;
-      totalFail += data.failCount;
     });
-    
-    const successRatio = totalSuccess + totalFail > 0 
-      ? Math.round((totalSuccess / (totalSuccess + totalFail)) * 100) 
-      : 0;
     
     return {
       totalReps,
-      totalTime: formatTime(totalTime),
-      successRatio
+      totalTime: formatTime(totalTime)
     };
   };
 
   const totals = calculateTotals();
   
-  // 파이 차트 데이터
-  const pieData = [
-    { name: '성공', value: repData.reduce((sum, data) => sum + data.successCount, 0) },
-    { name: '실패', value: repData.reduce((sum, data) => sum + data.failCount, 0) }
-  ].filter(item => item.value > 0);
-
   return (
     <div className="statistics-container">
       <div className="statistics-header">
@@ -293,10 +255,6 @@ function Statistics({ setActiveTab }) {
               <h3>총 시간</h3>
               <p className="summary-value">{totals.totalTime}</p>
             </div>
-            <div className="summary-card">
-              <h3>성공률</h3>
-              <p className="summary-value">{totals.successRatio}%</p>
-            </div>
           </div>
           
           <div className="statistics-charts">
@@ -333,49 +291,7 @@ function Statistics({ setActiveTab }) {
               </ResponsiveContainer>
             </div>
             
-            <div className="chart-container">
-              <h3>성공률 (%)</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={repData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis domain={[0, 100]} />
-                  <Tooltip />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="successRatio" 
-                    stroke="#ff7300" 
-                    name="성공률 (%)" 
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            
-            <div className="chart-container">
-              <h3>성공/실패 비율</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                    nameKey="name"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
+
           </div>
         </>
       )}

@@ -3,14 +3,7 @@ import './RepCard.css';
 
 function RepCard({ rep }) {
 
-  const getStatusClassName = (status) => {
-    switch (status) {
-      case 'Achieved': return 'achieved';
-      case 'Failed': return 'failed';
-      case 'Goal Changed': return 'changed';
-      default: return 'pending';
-    }
-  };
+
 
   const formatInitialTime = (totalSeconds) => {
     if (typeof totalSeconds !== 'number' || isNaN(totalSeconds)) {
@@ -22,7 +15,6 @@ function RepCard({ rep }) {
 
   return (
     <div className="rep-card">
-      <div className={`status-indicator ${getStatusClassName(rep.status)}`}></div>
       <span className="rep-card-goal">{rep.goal}</span>
       <span className="rep-card-time">{formatInitialTime(rep.initialSeconds)}</span>
     </div>
