@@ -13,6 +13,7 @@ import supabase from './supabaseClient';
 import { useAuth } from './contexts/AuthContext';
 import AuthModal from './components/Auth/AuthModal';
 import UserProfile from './components/Auth/UserProfile';
+import ConfirmModal from './components/ConfirmModal'; // 확인 모달 컴포넌트 추가
 
 // App component (the overall structure of our website) is defined here.
 function App() {
@@ -23,6 +24,7 @@ function App() {
   const [repToReview, setRepToReview] = useState(null);
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'dashboard'
+  const [showConfirmModal, setShowConfirmModal] = useState(false); // 확인 모달 표시 상태
   
   const { user, isAuthenticated } = useAuth();
 
@@ -265,11 +267,22 @@ function App() {
     }, 0);
   }, []);
   
-  // 중간에 Rep을 완료하는 함수 (드래그 앤 드롭으로 호출)
+  // 중간에 Rep을 완료하는 함수 (드래그 앤 드롭으로 호출) - 이제는 확인 모달을 표시하는 역할만 함
   const handleEarlyCompleteRep = () => {
     console.log('handleEarlyCompleteRep 함수 실행됨!', currentRep);
     if (!currentRep) {
       console.error('조기 완료할 Rep이 없습니다.');
+      return;
+    }
+    
+    // 확인 모달 표시
+    setShowConfirmModal(true);
+  };
+
+  // 실제로 Rep을 완료시키는 함수 (확인 모달에서 '확인' 버튼 클릭 시 호출)
+  const confirmEarlyComplete = () => {
+    if (!currentRep) {
+      console.error('완료할 Rep이 없습니다.');
       return;
     }
     
@@ -281,6 +294,9 @@ function App() {
       ...currentRep,
       completed_at: new Date().toISOString()
     };
+    
+    // 확인 모달 닫기
+    setShowConfirmModal(false);
     
     // handleCompleteRep 호출하여 회고 모달 표시
     handleCompleteRep(completedRep, elapsedSeconds);
@@ -541,6 +557,13 @@ function App() {
       <AuthModal 
         isOpen={isAuthModalOpen}
         onClose={handleCloseAuthModal}
+      />
+      
+      {/* 확인 모달 */}
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onConfirm={confirmEarlyComplete}
+        onCancel={() => setShowConfirmModal(false)}
       />
     </div>
     </DndProvider>
