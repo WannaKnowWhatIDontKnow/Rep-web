@@ -1,146 +1,102 @@
-/* RepDetailModal CSS */
-/* RetrospectiveModal의 스타일을 기반으로 하되, 상세 정보 표시에 맞게 수정 */
+/* RepDetailModal.css */
 
-/* 모달 오버레이 - 화면 전체를 커버하고 다른 요소들보다 위에 표시되도록 함 */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999; /* 매우 높은 z-index 값 설정 */
+  z-index: 1000;
 }
 
-/* 모달 콘텐츠 */
 .modal-content {
-  background-color: white;
+  background: #fff;
+  padding: 24px;
   border-radius: 16px;
   width: 90%;
-  max-width: 500px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
+  max-width: 450px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 
-/* 모달 헤더 */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid #eee;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .modal-header h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 20px;
+  font-weight: 600;
   color: #333;
 }
 
 .close-button {
   background: none;
   border: none;
-  font-size: 20px;
+  font-size: 24px;
   cursor: pointer;
-  color: #999;
-  transition: color 0.2s;
+  color: #888;
 }
 
-.close-button:hover {
-  color: #333;
-}
-
-/* 모달 본문 */
 .modal-body {
-  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* 항목 간의 간격 */
 }
 
-/* 모달 풋터 */
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start; /* 여러 줄일 경우를 대비해 상단 정렬 */
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-item:last-child {
+  border-bottom: none;
+}
+
+.detail-item label {
+  font-weight: 600;
+  color: #555;
+  flex-shrink: 0; /* 라벨이 줄어들지 않도록 */
+  margin-right: 16px;
+}
+
+.detail-item span {
+  color: #333;
+  text-align: right;
+  word-break: break-word; /* 긴 텍스트 줄바꿈 */
+}
+
 .modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #eee;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
   display: flex;
   justify-content: flex-end;
 }
 
-/* Rep 상세 정보 스타일 */
-.rep-detail-modal .detail-section {
-  margin-bottom: 20px;
-}
-
-.rep-detail-modal h3 {
-  font-size: 18px;
-  color: #333;
-  margin: 0 0 8px 0;
-}
-
-.rep-detail-modal .detail-content {
-  font-size: 16px;
-  color: #555;
-  line-height: 1.5;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  padding: 12px;
-  margin: 0;
-}
-
-.rep-detail-modal .goal-content {
-  font-weight: 600;
-  color: #333;
-}
-
-/* 시간 정보 스타일 */
-.time-details {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.time-item {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  padding: 4px 0;
-}
-
-.time-item:last-child {
-  margin-bottom: 0;
-  border-top: 1px solid #eee;
-  padding-top: 8px;
-  margin-top: 8px;
-}
-
-.time-label {
-  font-weight: 600;
-  color: #555;
-}
-
-.time-value {
-  color: #333;
-}
-
-.duration-value {
-  font-weight: 600;
-  color: #6E66FF;
-}
-
-/* 닫기 버튼 */
-.close-btn {
+.submit-button {
   background-color: #6E66FF;
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 12px 24px;
+  border-radius: 8px;
+  padding: 10px 20px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s;
 }
 
-.close-btn:hover {
-  background-color: #5851d1;
-  transform: translateY(-2px);
+.submit-button:hover {
+  background-color: #5a52cc;
 }

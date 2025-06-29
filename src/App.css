@@ -148,8 +148,4 @@ body {
   font-size: 1.2rem; /* 글자 크기를 키웁니다. */
 }
 
-/* 각 영역의 높이를 다르게 설정합니다. */
-.calendar-placeholder { height: 100px; }
-.list-area { height: 800px; }
-.current-rep-area { height: 100px; }
-.dashboard-placeholder { height: 500px; }
+

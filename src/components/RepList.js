@@ -1,10 +1,9 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
-import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import RepCard from './RepCard';
 import './RepList.css';
 
-function RepList({ reps, onDropRep, onRepCardClick, currentPage, totalPages, onPageChange }) {
+function RepList({ reps, onDropRep, onRepCardClick }) {
   // useDrop 훈을 부모 div에 적용
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: 'REP_CARD', // 'REP_CARD' 타입의 아이템만 받을 수 있음
@@ -36,32 +35,12 @@ function RepList({ reps, onDropRep, onRepCardClick, currentPage, totalPages, onP
     // 드롭 존으로 사용할 부모 div 추가
     <div className={dropZoneClassName} ref={drop}>
       <div className={listClassName}>
+
         <div className="rep-card-list">
           {reps.length === 0 ? (
             <p className="empty-list-message">No completed Reps yet.</p>
           ) : (
             reps.map(rep => <RepCard key={rep.id} rep={rep} onClick={() => onRepCardClick(rep)} />)
-          )}
-        </div>
-        <div className="pagination-controls">
-          {totalPages > 1 && (
-            <>
-              <button 
-                className="pagination-arrow-button"
-                onClick={() => onPageChange(currentPage - 1)} 
-                disabled={currentPage === 1}
-              >
-                <FaArrowLeft />
-              </button>
-              <span>{currentPage} / {totalPages}</span>
-              <button 
-                className="pagination-arrow-button"
-                onClick={() => onPageChange(currentPage + 1)} 
-                disabled={currentPage === totalPages}
-              >
-                <FaArrowRight />
-              </button>
-            </>
           )}
         </div>
       </div>

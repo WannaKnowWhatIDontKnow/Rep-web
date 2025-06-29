@@ -28,8 +28,6 @@ function App() {
   const [showConfirmModal, setShowConfirmModal] = useState(false); // 확인 모달 표시 상태
   const [selectedRep, setSelectedRep] = useState(null); // 선택된 Rep 상태 추가
   const [isDetailModalOpen, setDetailModalOpen] = useState(false); // 상세 정보 모달 표시 상태 추가
-  const [currentPage, setCurrentPage] = useState(1); // 페이지네이션을 위한 현재 페이지 상태
-  const itemsPerPage = 10; // 한 페이지에 보여줄 아이템 개수
   
   const { user, isAuthenticated } = useAuth();
 
@@ -129,6 +127,8 @@ function App() {
       console.error('데이터 가져오기 중 오류 발생:', error);
     }
   };
+
+
   
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -480,22 +480,15 @@ function App() {
 
   // 선택된 날짜에 해당하는 렙만 필터링
   const filteredReps = repList.filter(rep => {
-    // 데이터베이스와 로컬스토리지의 필드명 차이를 처리
-    const completionDate = rep.completedAt || rep.completed_at;
-    if (!completionDate) return false;
-    
-    const repDate = new Date(completionDate);
+    if (!rep.completed_at) return false;
+    const repDate = new Date(rep.completed_at);
     return repDate.getFullYear() === selectedDate.getFullYear() &&
            repDate.getMonth() === selectedDate.getMonth() &&
            repDate.getDate() === selectedDate.getDate();
   });
-  
-  // 페이지네이션을 위한 데이터 계산
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredReps.slice(indexOfFirstItem, indexOfLastItem);
-  
-  const totalPages = Math.ceil(filteredReps.length / itemsPerPage);
+
+  // 최신 10개의 Rep만 선택합니다.
+  const latestTenReps = filteredReps.slice(0, 10);
 
   // 로그인/회원가입 모달 열기
   const handleOpenAuthModal = () => {
@@ -512,16 +505,8 @@ function App() {
     setSelectedRep(rep);
     setDetailModalOpen(true);
   };
-  
-  // 페이지 변경 함수
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-  
-  // 날짜가 변경될 때 페이지를 1로 리셋
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedDate]);
+
+
 
   return (
     // Container for the entire app
@@ -549,14 +534,7 @@ function App() {
             setSelectedDate={setSelectedDate} 
           />
           {/* List area (core feature implementation target) */}
-          <RepList 
-            reps={currentItems} 
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-            onDropRep={handleEarlyCompleteRep} 
-            onRepCardClick={handleRepCardClick} 
-          />
+          <RepList reps={latestTenReps} onDropRep={handleEarlyCompleteRep} onRepCardClick={handleRepCardClick} />
         </div>
         <div className="right-panel">
           {/* Current Rep area (core feature implementation target) */}
@@ -600,7 +578,10 @@ function App() {
       {/* Rep 상세 정보 모달 */}
       <RepDetailModal 
         isOpen={isDetailModalOpen}
-        onClose={() => setDetailModalOpen(false)}
+        onClose={() => {
+          setDetailModalOpen(false);
+          setSelectedRep(null);
+        }}
         rep={selectedRep}
       />
     </div>

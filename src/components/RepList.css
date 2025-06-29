@@ -1,7 +1,6 @@
 /* 드롭 존 래퍼 - 실제 드롭 영역을 넓게 설정 */
 .drop-zone-wrapper {
   position: relative;
-  height: calc(100% - 90px); /* 캡8린더 높이를 고려하여 계산 */
   /* 드롭 영역을 넓게 확장하기 위해 마진을 음수로 설정 */
   margin: -40px;
   padding: 40px;
@@ -20,7 +19,6 @@
   border-radius: 24px;
   padding: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  height: 100%;
   color: #333;
   display: flex;
   flex-direction: column;
@@ -35,92 +33,27 @@
 }
 
 
+
+
+
 .rep-card-list {
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  /* 카드가 없을 때 메시지를 중앙에 위치시키기 위해 부모 컨테이너의 높이를 채움 */
   flex-grow: 1;
-  padding-right: 8px; /* 스크롤바 공간 확보 */
 }
 
-/* 스크롤바 스타일링 */
-.rep-card-list::-webkit-scrollbar {
-  width: 6px;
+/* .rep-card-list 내부에 .rep-card 클래스가 하나라도 있을 경우, 정렬을 초기화합니다. */
+.rep-card-list:has(.rep-card) {
+  justify-content: flex-start;
+  align-items: stretch;
 }
-.rep-card-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-.rep-card-list::-webkit-scrollbar-thumb {
-  background: #ccc;
-  border-radius: 3px;
-}
-.rep-card-list::-webkit-scrollbar-thumb:hover {
-  background: #aaa;
-}
-
 
 .empty-list-message {
   text-align: center;
   color: #aaa;
   margin-top: 40px;
   font-size: 16px;
-}
-
-/* 페이지네이션 컨트롤 스타일 */
-.pagination-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  padding: 15px 0;
-  margin-top: 10px;
-}
-
-.pagination-controls button {
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #333;
-}
-
-.pagination-arrow-button {
-  background-color: transparent !important;
-  border: none !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50% !important;
-  padding: 0 !important;
-}
-
-.pagination-arrow-button:hover:not(:disabled) {
-  background-color: rgba(110, 102, 255, 0.1) !important;
-  color: #6E66FF !important;
-}
-
-.pagination-arrow-button svg {
-  width: 14px;
-  height: 14px;
-}
-
-.pagination-controls button:hover:not(:disabled) {
-  background-color: #6E66FF;
-  color: white;
-  border-color: #6E66FF;
-}
-
-.pagination-controls button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pagination-controls span {
-  font-size: 14px;
-  color: #666;
-  font-weight: 500;
 }
