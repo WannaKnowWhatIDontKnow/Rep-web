@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './RetrospectiveModal.css';
 
-function RetrospectiveModal({ isOpen, onClose, onSubmit }) {
+function RetrospectiveModal({ isOpen, onSubmit }) {
   const [notes, setNotes] = useState('');
 
   const handleSubmit = () => {
@@ -14,11 +14,11 @@ function RetrospectiveModal({ isOpen, onClose, onSubmit }) {
   }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay" onClick={() => onSubmit('')}>
       <div className="modal-content retro-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Rep Complete!</h2>
-          <button className="close-button" onClick={onClose}>X</button>
+          <button className="close-button" onClick={() => onSubmit('')}>X</button>
         </div>
         <div className="modal-body">
 

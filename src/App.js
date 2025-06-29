@@ -546,10 +546,6 @@ function App() {
       {/* 회고 모달 - z-index를 높게 설정하여 항상 다른 요소들 위에 표시되도록 함 */}
       <RetrospectiveModal 
         isOpen={isRetroModalOpen}
-        onClose={() => {
-          console.log('회고 모달 닫기');
-          setRetroModalOpen(false);
-        }}
         onSubmit={handleRetroSubmit}
       />
       
