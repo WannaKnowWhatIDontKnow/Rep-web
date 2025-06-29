@@ -1,22 +1,27 @@
 import React from 'react';
 import './RepCard.css';
 
-function RepCard({ rep, onClick }) {
+function RepCard({ rep, onClick }) { // onClick prop 추가
 
-
-
-  const formatInitialTime = (totalSeconds) => {
-    if (typeof totalSeconds !== 'number' || isNaN(totalSeconds)) {
-      return '0min'; // 유효하지 않은 값일 경우 기본값 반환
-    }
-    const minutes = Math.floor(totalSeconds / 60);
-    return `${minutes}min`;
-  };
+  // 프로그레스 바의 너비를 계산하는 로직
+  const maxMinutes = 30; // 30분을 100% 기준으로 설정 (조정 가능)
+  const repMinutes = rep.initialSeconds / 60;
+  const progressWidth = Math.min((repMinutes / maxMinutes) * 100, 100);
 
   return (
-    <div className="rep-card" onClick={onClick}>
-      <span className="rep-card-goal">{rep.goal}</span>
-      <span className="rep-card-time">{formatInitialTime(rep.initialSeconds)}</span>
+    <div className="rep-card" onClick={onClick}> {/* 최상위 div에 onClick 이벤트 연결 */}
+      <div className="rep-color-tag"></div> {/* 1. 컬러 태그 */}
+      
+      <div className="rep-card-content"> {/* 2. 기존 콘텐츠를 감싸는 div */}
+        <span className="rep-card-goal">{rep.goal}</span>
+      </div>
+
+      <div className="rep-card-progress-bar-container"> {/* 3. 프로그레스 바 컨테이너 */}
+        <div 
+          className="rep-card-progress-bar" 
+          style={{ width: `${progressWidth}%` }}
+        ></div>
+      </div>
     </div>
   );
 }
