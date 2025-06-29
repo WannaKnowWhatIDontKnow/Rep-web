@@ -1,20 +1,21 @@
 .current-rep-area {
   background-color: white;
   border-radius: 24px;
-  padding: 24px;
+  padding: 18px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  min-height: 250px; /* Taller to fit controls */
-  height: auto;
+  height: 210px; /* 고정된 높이를 60% 정도로 줄임 */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   display: flex;
   flex-direction: column; /* Set to column for both states */
   justify-content: center;
-  gap: 16px; /* Add gap for elements */
+  gap: 10px; /* 요소 간 간격 줄임 */
+  overflow: hidden; /* 스크롤 기능 제거 */
 }
 
 /* 초기 상태 (생성 폼) */
 .current-rep-area.initial {
   justify-content: space-between;
+  padding: 18px;
 }
 
 /* 플러스 버튼 컨테이너 스타일 */
@@ -51,8 +52,7 @@
 .current-rep-area.active {
   justify-content: space-between;
   align-items: center;
-  height: 100%;
-  min-height: 250px;
+  /* 부모 컴포넌트에서 이미 높이가 고정되어 있으므로 height 속성 제거 */
 }
 
 .rep-goal {
@@ -111,25 +111,31 @@
 
 /* --- New styles for inline creation form --- */
 .initial-form-group {
-  width: 100%;
+  margin-bottom: 8px;
+  width: 90%;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .initial-form-label {
-  display: block;
+  font-weight: 600;
+  color: #333;
   margin-bottom: 8px;
-  font-weight: 500;
-  color: #555;
-  font-size: 14px;
+  display: block;
+  font-size: 15px;
 }
 
 .initial-goal-input {
-  width: 100%;
+  width: 90%;
   padding: 12px 16px;
-  border: 1px solid #ddd;
+  border: 2px solid #6E66FF;
   border-radius: 12px;
-  font-size: 16px;
+  font-size: 15px;
   box-sizing: border-box;
   transition: border-color 0.2s, box-shadow 0.2s;
+  margin: 0 auto;
+  display: block;
+  height: 45px;
 }
 
 .initial-goal-input:focus {
@@ -142,74 +148,78 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 
 .time-slider-value {
   font-weight: bold;
-  font-size: 24px;
+  font-size: 16px;
   color: #6E66FF;
 }
 
 .time-slider-value span {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: normal;
   color: #555;
-  margin-left: 4px;
+  margin-left: 2px;
 }
 
 .time-slider {
   -webkit-appearance: none;
   appearance: none;
-  width: 100%;
-  height: 8px;
-  background: linear-gradient(to right, #6E66FF, #6E66FF var(--fill-percent), #e0e0e0 var(--fill-percent), #e0e0e0 100%);
-  border-radius: 4px;
+  width: 90%;
+  height: 4px;
+  border-radius: 3px;
+  background: linear-gradient(to right, #6E66FF var(--fill-percent), #e0e0e0 var(--fill-percent));
   outline: none;
+  margin: 3px auto;
+  display: block;
 }
 
 .time-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   background: #6E66FF;
   cursor: pointer;
   border-radius: 50%;
-  border: 4px solid white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-  margin-top: -8px; /* To center it on the 8px track */
+  border: 3px solid white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  margin-top: -7px;
 }
 
 .time-slider::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   background: #6E66FF;
   cursor: pointer;
   border-radius: 50%;
-  border: 4px solid white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  border: 3px solid white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
 }
 
 .time-slider-labels {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
-  color: #999;
-  margin-top: 8px;
+  width: 90%;
+  font-size: 10px;
+  color: #777;
+  margin: 2px auto 0;
 }
 
 .start-rep-button {
+  flex-grow: 1;
+  flex-basis: 0;
   background-color: #6E66FF;
   color: white;
   border: none;
-  width: 100%;
-  padding: 14px 0;
-  border-radius: 12px;
+  border-radius: 8px;
+  padding: 12px 0;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .start-rep-button:hover {
@@ -227,28 +237,26 @@
 .form-buttons {
   display: flex;
   gap: 12px;
-  width: 100%;
+  width: 60%;
+  margin: 5px auto 18px;
 }
 
 /* 취소 버튼 스타일 */
 .cancel-button {
+  flex-grow: 1;
+  flex-basis: 0;
   background-color: #f0f0f0;
-  color: #555;
+  color: #333;
   border: none;
-  flex: 1;
-  padding: 14px 0;
-  border-radius: 12px;
+  border-radius: 8px;
+  padding: 12px 0;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .cancel-button:hover {
   background-color: #e0e0e0;
 }
 
-/* 시작 버튼 너비 조정 */
-.start-rep-button {
-  flex: 2;
-}

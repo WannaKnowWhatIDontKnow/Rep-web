@@ -6,6 +6,7 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
   const [goal, setGoal] = useState('');
   const [minutes, setMinutes] = useState(defaultMinutes); // 마지막으로 성공한 렙의 타이머 길이를 기본값으로 사용
   const [showForm, setShowForm] = useState(false);
+  const [charCount, setCharCount] = useState(0); // 글자수 카운트 상태 추가
   
   // useDrag 훈을 컴포넌트 최상위 레벨로 이동
   const [{ isDragging }, drag] = useDrag(() => ({
@@ -43,17 +44,31 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
   const renderCreationForm = () => (
     <div className="current-rep-area initial">
       <div className="initial-form-group">
-        <label className="initial-form-label" htmlFor="goal-input">
-          이번 Rep의 목표는 무엇인가요?
-        </label>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <label className="initial-form-label" htmlFor="goal-input">
+            이번 Rep의 목표는 무엇인가요?
+          </label>
+          <span style={{ 
+            fontSize: '12px', 
+            color: charCount >= 30 ? '#ff3b30' : '#777',
+            fontWeight: charCount >= 30 ? 'bold' : 'normal'
+          }}>
+            {charCount}/30
+          </span>
+        </div>
         <input
           id="goal-input"
           type="text"
           value={goal}
-          onChange={(e) => setGoal(e.target.value)}
-          placeholder="Setting a goal"
+          onChange={(e) => {
+            const newValue = e.target.value.slice(0, 30);
+            setGoal(newValue);
+            setCharCount(newValue.length);
+          }}
+          placeholder="Setting a goal (최대 30자)"
           className="initial-goal-input"
           autoFocus
+          maxLength={30} // HTML 제한도 추가
         />
       </div>
 
