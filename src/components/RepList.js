@@ -32,17 +32,14 @@ function RepList({ reps, onDropRep, onRepCardClick }) {
   const listClassName = 'list-area';
 
   return (
-    // 드롭 존으로 사용할 부모 div 추가
-    <div className={dropZoneClassName} ref={drop}>
-      <div className={listClassName}>
-
-        <div className="rep-card-list">
-          {reps.length === 0 ? (
-            <p className="empty-list-message">No completed Reps yet.</p>
-          ) : (
-            reps.map(rep => <RepCard key={rep.id} rep={rep} onClick={() => onRepCardClick(rep)} />)
-          )}
-        </div>
+    // 드롭 존과 리스트 영역을 하나의 div로 통합
+    <div className={`${dropZoneClassName} ${listClassName}`} ref={drop}>
+      <div className="rep-card-list">
+        {reps.length === 0 ? (
+          <p className="empty-list-message">완료된 Rep이 없습니다.</p>
+        ) : (
+          reps.map(rep => <RepCard key={rep.id} rep={rep} onClick={() => onRepCardClick(rep)} />)
+        )}
       </div>
     </div>
   );

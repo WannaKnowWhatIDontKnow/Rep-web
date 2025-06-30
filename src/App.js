@@ -28,8 +28,10 @@ function App() {
   const [showConfirmModal, setShowConfirmModal] = useState(false); // 확인 모달 표시 상태
   const [selectedRep, setSelectedRep] = useState(null); // 선택된 Rep 상태 추가
   const [isDetailModalOpen, setDetailModalOpen] = useState(false); // 상세 정보 모달 표시 상태 추가
-  
+
   const { user, isAuthenticated } = useAuth();
+  const rightPanelRef = useRef(null);
+  const leftPanelRef = useRef(null);
 
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [isPaused, setIsPaused] = useState(true); // Start as paused
@@ -163,6 +165,26 @@ function App() {
       }
     }
   }, [repList, isAuthenticated]);
+
+  useEffect(() => {
+    const rightPanel = rightPanelRef.current;
+    const leftPanel = leftPanelRef.current;
+
+    if (!rightPanel || !leftPanel) return;
+
+    // ResizeObserver를 생성하여 right-panel의 높이 변경을 감지
+    const resizeObserver = new ResizeObserver(() => {
+      const rightPanelHeight = rightPanel.offsetHeight;
+      leftPanel.style.maxHeight = `${rightPanelHeight}px`;
+    });
+
+    resizeObserver.observe(rightPanel);
+
+    // 컴포넌트가 언마운트될 때 observer를 정리
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [activeTab]); // activeTab이 변경되면 패널이 다시 렌더링되므로 의존성 유지
 
   const isToday = (date) => {
     const today = new Date();
@@ -527,16 +549,16 @@ function App() {
       {/* 탭에 따라 다른 콘텐츠 표시 */}
       {activeTab === 'daily' ? (
         <div className="main-content">
-        <div className="left-panel">
+        <div className="left-panel" ref={leftPanelRef}>
           {/* Calendar area */}
           <CalendarSection 
             selectedDate={selectedDate} 
             setSelectedDate={setSelectedDate} 
           />
           {/* List area (core feature implementation target) */}
-          <RepList reps={latestTenReps} onDropRep={handleEarlyCompleteRep} onRepCardClick={handleRepCardClick} />
+          <RepList reps={filteredReps} onDropRep={handleEarlyCompleteRep} onRepCardClick={handleRepCardClick} />
         </div>
-        <div className="right-panel">
+        <div className="right-panel" ref={rightPanelRef}>
           {/* Current Rep area (core feature implementation target) */}
           <CurrentRep
           key={lastSuccessfulRepMinutes} // 이 key가 변경될 때마다 컴포넌트가 리셋됩니다.
