@@ -82,6 +82,30 @@ body {
   background-color: #3a80d2;
 }
 
+/* 헤더 전용 인증 버튼 스타일 */
+.header-auth-button {
+  background-color: #6E66FF; /* 앱의 주요 색상으로 통일 */
+  color: white;
+  border: none;
+  
+  /* 1. 크기 줄이기: padding과 font-size 조정 */
+  padding: 8px 18px; /* 상하 여백은 유지, 좌우 여백을 늘려 균형 맞춤 */
+  font-size: 14px;   /* 폰트 크기를 약간 줄임 */
+  font-weight: 500;  /* 굵기를 살짝 낮춰 부드럽게 */
+  
+  /* 2. 둥근 느낌 추가: border-radius 증가 */
+  border-radius: 8px; /* 기존 4px에서 증가 */
+  
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header-auth-button:hover {
+  background-color: #5851d1; /* Primary-Dark 색상 */
+  transform: translateY(-1px); /* 살짝 떠오르는 효과 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 /* 사용자 프로필 스타일 */
 .user-profile {
   display: flex;

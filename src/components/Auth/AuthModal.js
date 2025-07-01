@@ -9,7 +9,7 @@ function AuthModal({ isOpen, onClose }) {
   const [mode, setMode] = useState('login'); // 'login' 또는 'signup'
 
   const toggleMode = () => {
-    setMode(mode === 'login' ? 'signup' : 'login');
+    setMode(prevMode => (prevMode === 'login' ? 'signup' : 'login'));
   };
 
   return (

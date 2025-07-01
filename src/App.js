@@ -349,7 +349,7 @@ function App() {
           {isAuthenticated ? (
             <UserProfile />
           ) : (
-            <button onClick={handleOpenAuthModal} className="auth-button">로그인 / 회원가입</button>
+            <button onClick={handleOpenAuthModal} className="header-auth-button">로그인</button>
           )}
         </div>
       </div>
