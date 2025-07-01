@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDrop } from 'react-dnd';
+import { motion } from 'framer-motion'; // Framer Motion 임포트 확인
 import RepCard from './RepCard';
 import './RepList.css';
 import logger from '../utils/logger'; // logger 임포트
@@ -41,13 +42,18 @@ function RepList({ reps, onDropRep, onRepCardClick }) {
   return (
     // 드롭 존과 리스트 영역을 하나의 div로 통합
     <div className={`${dropZoneClassName} ${listClassName}`} ref={drop}>
-      <div className={cardListClassName}>
-        {reps.length === 0 ? (
+      {/* 이 motion.div가 자식들의 레이아웃 변경을 감지하고 애니메이션을 적용합니다. */}
+      <motion.div layout className={cardListClassName}>
+        {reps.map(rep => (
+          // 각 카드에도 layout을 적용해줄야 부드럽게 움직입니다.
+          <motion.div key={rep.id} layout>
+            <RepCard rep={rep} onClick={() => onRepCardClick(rep)} />
+          </motion.div>
+        ))}
+        {reps.length === 0 && (
           <p className="empty-list-message">완료된 Rep이 없습니다.</p>
-        ) : (
-          reps.map(rep => <RepCard key={rep.id} rep={rep} onClick={() => onRepCardClick(rep)} />)
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

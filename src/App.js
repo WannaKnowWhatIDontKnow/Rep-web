@@ -177,23 +177,19 @@ function App() {
   };
 
   const handleCompleteRep = useCallback((completedRep, finalSeconds) => {
-    console.log('Rep 완료 처리:', completedRep, '최종 시간:', finalSeconds);
-    new Audio('/alert.mp3').play().catch(() => console.log('Failed to play alert sound'));
+    logger.info('Rep 완료 처리. 회고 모달을 엽니다.');
+    new Audio('/alert.mp3').play().catch(() => logger.warn('알림음 재생에 실패했습니다.'));
     
-    // 현재 Rep 초기화 및 회고 모달 표시
-    setCurrentRep(null);
+    // 🔥 중요: 이 라인을 다시 활성화합니다.
+    setCurrentRep(null); 
     
-    // finalSeconds 값을 포함하여 repToReview 설정
     const reviewRep = {
       ...completedRep,
-      finalSeconds: finalSeconds // 최종 시간 추가
+      finalSeconds: finalSeconds
     };
-    
     setRepToReview(reviewRep);
     
-    // 메인 스레드에서 모달 표시를 보장하기 위해 setTimeout 사용
     setTimeout(() => {
-      console.log('회고 모달 표시 시도');
       setRetroModalOpen(true);
     }, 0);
   }, []);
@@ -288,25 +284,32 @@ function App() {
 
   const handleRetroSubmit = async (notes) => {
     if (!repToReview) {
-      console.error('repToReview가 없습니다.');
+      logger.error('회고 제출 시 repToReview가 없습니다.');
+      // 사용자가 모달 외부를 클릭하거나 X를 눌러 닫는 경우, notes가 없을 수 있습니다.
+      // 이 경우엔 그냥 모달만 닫고 아무것도 하지 않습니다.
+      setRetroModalOpen(false);
+      setRepToReview(null);
+      setCurrentRep(null); // 어떤 경우든 CurrentRep는 비워줍니다.
       return;
     }
-    
-    console.log('회고 제출 시작:', notes, repToReview);
-    
-    // repToReview와 notes를 합쳐서 하나의 객체로 전달
+
+    logger.info('회고 제출. 리스트에 Rep 추가 및 CurrentRep 초기화.');
+
     const completedRepData = {
       ...repToReview,
       notes: notes,
     };
-    
-    // useReps 후크의 addRep 함수를 사용하여 렛 데이터 저장
+
+    // 1. 실제 데이터 리스트에 Rep 추가 (즉시 실행)
     await addRep(completedRepData);
+
+    // 2. CurrentRep 영역을 비움 (즉시 실행)
+    setCurrentRep(null);
     
-    // 오늘 날짜로 선택 변경 (데이터가 보이도록)
+    // 3. 오늘 날짜로 뷰 전환
     setSelectedDate(new Date());
-    
-    // 모달 닫기
+
+    // 4. 모달 닫기 및 임시 상태 초기화
     setRetroModalOpen(false);
     setRepToReview(null);
   };
