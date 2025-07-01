@@ -15,12 +15,12 @@ import AuthModal from './components/Auth/AuthModal';
 import UserProfile from './components/Auth/UserProfile';
 import ConfirmModal from './components/ConfirmModal'; // 확인 모달 컴포넌트 추가
 import RepDetailModal from './components/RepDetailModal'; // Rep 상세 정보 모달 컴포넌트 추가
+import useReps from './hooks/useReps'; // 새로운 커스텀 훅 추가
 
 // App component (the overall structure of our website) is defined here.
 function App() {
   const [selectedDate, setSelectedDate] = useState(new Date()); // State for the selected date
   const [currentRep, setCurrentRep] = useState(null);
-  const [repList, setRepList] = useState([]);
   const [isRetroModalOpen, setRetroModalOpen] = useState(false);
   const [repToReview, setRepToReview] = useState(null);
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
@@ -32,118 +32,27 @@ function App() {
   const { user, isAuthenticated } = useAuth();
   const rightPanelRef = useRef(null);
   const leftPanelRef = useRef(null);
+  
+  // useReps 훅 사용하여 렙 데이터 관리
+  const { repList, loading, fetchReps, addRep, getFilteredReps } = useReps(user, isAuthenticated);
 
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [isPaused, setIsPaused] = useState(true); // Start as paused
   const [endTime, setEndTime] = useState(null); // State to store the target end time
   const [lastSuccessfulRepMinutes, setLastSuccessfulRepMinutes] = useState(15); // 마지막으로 성공한 렙의 타이머 길이 (기본값 15분)
 
-  // 앱이 시작될 때 데이터를 가져옵니다 (로그인 상태에 따라 다른 소스에서 가져옴)
-  const fetchReps = async () => {
-    try {
-      if (isAuthenticated && user) {
-        console.log('데이터 가져오기 시도 - 사용자 ID:', user.id);
-        
-        // 로그인 상태: 데이터베이스에서 가져오기
-        const { data, error } = await supabase
-          .from('reps')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('completed_at', { ascending: false });
-          
-        if (error) {
-          console.error('데이터베이스에서 목표 가져오기 실패:', error);
-          
-          // 인증 오류인 경우 사용자에게 알림
-          if (error.code === '403' || error.message.includes('JWT')) {
-            console.log('인증 오류 발생, 세션 만료 가능성');
-            
-            try {
-              // AuthContext의 refreshSession 함수를 호출하는 것이 좋지만, 여기서는 직접 구현
-              const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-              
-              if (!refreshError && refreshData && refreshData.session) {
-                console.log('세션 새로고침 성공, 데이터 다시 가져오기 시도');
-                
-                // 세션 새로고침 성공, 다시 시도
-                const { data: retryData, error: retryError } = await supabase
-                  .from('reps')
-                  .select('*')
-                  .eq('user_id', refreshData.session.user.id)
-                  .order('completed_at', { ascending: false });
-                  
-                if (!retryError && retryData) {
-                  console.log('세션 새로고침 후 데이터 가져오기 성공:', retryData.length, '개 항목');
-                  setRepList(retryData);
-                  return;
-                } else if (retryError) {
-                  console.error('새로고침 후 데이터 가져오기 실패:', retryError);
-                }
-              }
-            } catch (refreshException) {
-              console.error('세션 새로고침 중 예외 발생:', refreshException);
-            }
-            
-            // 자동 새로고침 실패 시 사용자에게 알림
-            alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-          }
-          
-          // 로컬스토리지에서 가져오기 시도
-          try {
-            const savedReps = localStorage.getItem('repList');
-            if (savedReps) {
-              console.log('로컬스토리지에서 데이터 가져오기 성공');
-              setRepList(JSON.parse(savedReps));
-            }
-          } catch (error) {
-            console.error('로컬스토리지에서 데이터 가져오기 실패:', error);
-          }
-        } else if (data) {
-          console.log('가져온 데이터:', data.length, '개 항목');
-          
-          // 데이터 필드 일관성 유지 (DB와 프론트엔드 간)
-          const normalizedData = data.map(rep => {
-            // initial_seconds와 initialSeconds 필드 일관성 유지
-            if (rep.initial_seconds !== undefined && rep.initialSeconds === undefined) {
-              rep.initialSeconds = rep.initial_seconds;
-            } else if (rep.initialSeconds !== undefined && rep.initial_seconds === undefined) {
-              rep.initial_seconds = rep.initialSeconds;
-            }
-            
-            // completed_at과 completedAt 필드 일관성 유지
-            if (rep.completed_at !== undefined && rep.completedAt === undefined) {
-              rep.completedAt = rep.completed_at;
-            } else if (rep.completedAt !== undefined && rep.completed_at === undefined) {
-              rep.completed_at = rep.completedAt;
-            }
-            
-            return rep;
-          });
-          
-          setRepList(normalizedData);
-        }
-      } else {
-        console.log('사용자 정보가 없어 데이터를 가져올 수 없습니다.');
-      }
-    } catch (error) {
-      console.error('데이터 가져오기 중 오류 발생:', error);
-    }
-  };
+  // useEffect에서 fetchReps 함수를 직접 호출하므로 여기서는 함수 정의를 제거합니다.
+  // 이제 useReps 훅에서 fetchReps 함수를 가져와 사용합니다.
 
 
   
   useEffect(() => {
     if (isAuthenticated && user) {
-      fetchReps();
+      // fetchReps는 이제 useReps 훅 내부에서 자동으로 호출됩니다.
       fetchLastSuccessfulRepMinutes(); // 로그인 사용자의 마지막 성공 렙 시간 불러오기
     } else if (!isAuthenticated) {
-      // 비로그인 상태일 때 로컬스토리지에서 가져오기
+      // 비로그인 상태일 때 로컬스토리지에서 마지막 성공 렙 시간 불러오기
       try {
-        const savedReps = localStorage.getItem('repList');
-        if (savedReps) {
-          setRepList(JSON.parse(savedReps));
-        }
-        
         // 마지막 성공 렙 시간 불러오기
         const savedLastSuccessfulRepMinutes = localStorage.getItem('lastSuccessfulRepMinutes');
         if (savedLastSuccessfulRepMinutes) {
@@ -156,15 +65,7 @@ function App() {
   }, [isAuthenticated, user]);
   
   // 비로그인 상태일 때만 로컬스토리지에 저장
-  useEffect(() => {
-    if (!isAuthenticated && repList.length > 0) {
-      try {
-        localStorage.setItem('repList', JSON.stringify(repList));
-      } catch (error) {
-        console.error('로컬스토리지에 저장 실패:', error);
-      }
-    }
-  }, [repList, isAuthenticated]);
+  // 이제 이 기능은 useReps 훅에서 처리합니다.
 
   useEffect(() => {
     const rightPanel = rightPanelRef.current;
@@ -389,110 +290,13 @@ function App() {
     
     console.log('회고 제출 시작:', notes, repToReview);
     
-    // 이제 finalSeconds 값을 사용
-    let seconds = 0;
-    if (typeof repToReview.finalSeconds === 'number' && !isNaN(repToReview.finalSeconds)) {
-      // 중간에 완료한 경우 또는 정상 완료된 경우 finalSeconds 사용
-      seconds = repToReview.finalSeconds;
-    } else if (typeof repToReview.initial_seconds === 'number' && !isNaN(repToReview.initial_seconds)) {
-      seconds = repToReview.initial_seconds;
-    } else if (typeof repToReview.initialSeconds === 'number' && !isNaN(repToReview.initialSeconds)) {
-      seconds = repToReview.initialSeconds;
-    }
+    // useReps 훅의 addRep 함수를 사용하여 렙 데이터 저장
+    const savedRep = await addRep(repToReview, notes);
     
-    console.log('최종 시간 값 추출:', seconds, repToReview);
-    
-    // DB 스키마에 맞게 필드명 사용
-    const reviewedRep = {
-      goal: repToReview.goal,
-      notes: notes,
-      completed_at: new Date().toISOString(),
-      initial_seconds: seconds, // DB에서 사용하는 필드명으로 통일
-      user_id: repToReview.user_id // 사용자 ID 유지
-    };
-    
-    if (isAuthenticated && user) {
-      // 로그인 상태: 데이터베이스에 저장
-      try {
-        // 세션 확인 - 현재 세션이 유효한지 확인
-        console.log('현재 세션 확인 중');
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError || !session) {
-          console.error('세션 확인 실패:', sessionError || '세션 없음');
-          
-          // 세션이 없으면 새로고침 시도
-          console.log('세션 새로고침 시도');
-          const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
-          
-          if (refreshError || !refreshData || !refreshData.session) {
-            console.error('세션 새로고침 실패:', refreshError || '세션 없음');
-            alert('세션이 만료되었습니다. 다시 로그인해주세요.');
-            return;
-          }
-          
-          // 새로고침 성공 시 사용자 ID 업데이트
-          reviewedRep.user_id = refreshData.session.user.id;
-          console.log('세션 새로고침 성공:', refreshData.session.user.id);
-        } else {
-          // 현재 세션이 유효한 경우
-          reviewedRep.user_id = session.user.id;
-          console.log('현재 세션 유효:', session.user.id);
-        }
-        
-        // 데이터 저장 시도
-        console.log('데이터 저장 시도:', reviewedRep);
-        
-        // Supabase에 데이터 저장
-        const { data: insertData, error } = await supabase
-          .from('reps')
-          .insert([reviewedRep])
-          .select(); // 저장 후 데이터 반환 요청
-          
-        if (error) {
-          console.error('데이터베이스 저장 실패:', error);
-          
-          // 오류 유형 확인
-          if (error.code === 'PGRST301' || error.message.includes('policy')) {
-            console.error('RLS 정책 오류:', error.message);
-            alert('RLS 정책 오류: ' + error.message + '\n\nSupabase 대시보드에서 RLS 정책을 확인해주세요.');
-          } else if (error.code === '403' || error.message.includes('JWT')) {
-            console.error('인증 오류:', error.message);
-            alert('인증 오류: ' + error.message + '\n\n다시 로그인해주세요.');
-          } else {
-            alert('제출 중 오류가 발생했습니다: ' + error.message);
-          }
-          return;
-        }
-        
-        // 저장 성공 확인
-        if (insertData && insertData.length > 0) {
-          console.log('데이터 저장 성공!', insertData);
-          
-          // 성공적으로 저장되면 목록에 추가 (fetchReps 호출 전에)
-          setRepList(prevList => [insertData[0], ...prevList]);
-        } else {
-          console.log('데이터 저장은 성공했지만 반환된 데이터가 없습니다.');
-        }
-        
-        // 성공적으로 저장되면 목록 새로고침
-        await fetchReps(); // 추출된 fetchReps 함수 호출
-        
-        // 오늘 날짜로 선택 변경 (데이터가 보이도록)
-        setSelectedDate(new Date());
-      } catch (err) {
-        console.error('데이터 처리 중 오류 발생:', err);
-        alert('제출 중 오류가 발생했습니다: ' + err.message);
-      }
-    } else {
-      // 비로그인 상태: 로컬스토리지에 저장
-      const localRep = {
-        ...reviewedRep,
-        id: Date.now(), // 로컬에서 사용할 임시 ID
-        completedAt: reviewedRep.completed_at // 기존 코드와 호환성 유지
-      };
-      
-      setRepList(prevList => [localRep, ...prevList]);
+    if (savedRep) {
+      console.log('렙 저장 성공:', savedRep);
+      // 오늘 날짜로 선택 변경 (데이터가 보이도록)
+      setSelectedDate(new Date());
     }
     
     // 모달 닫기
@@ -500,14 +304,8 @@ function App() {
     setRepToReview(null);
   };
 
-  // 선택된 날짜에 해당하는 렙만 필터링
-  const filteredReps = repList.filter(rep => {
-    if (!rep.completed_at) return false;
-    const repDate = new Date(rep.completed_at);
-    return repDate.getFullYear() === selectedDate.getFullYear() &&
-           repDate.getMonth() === selectedDate.getMonth() &&
-           repDate.getDate() === selectedDate.getDate();
-  });
+  // 선택된 날짜에 해당하는 렙만 필터링 (useReps 훅의 getFilteredReps 함수 사용)
+  const filteredReps = getFilteredReps(selectedDate);
 
   // 최신 10개의 Rep만 선택합니다.
   const latestTenReps = filteredReps.slice(0, 10);

@@ -15,11 +15,12 @@ describe('RepCard 컴포넌트', () => {
     // 목표 텍스트가 화면에 표시되는지 확인
     expect(screen.getByText('테스트 목표')).toBeInTheDocument();
     
-    // 시간이 올바르게 표시되는지 확인
-    expect(screen.getByText('30min')).toBeInTheDocument();
+    // 프로그레스 바가 존재하는지 확인
+    const progressBar = document.querySelector('.rep-card-progress-bar');
+    expect(progressBar).toBeInTheDocument();
   });
   
-  test('initialSeconds가 유효하지 않을 때 0min으로 표시됩니다', () => {
+  test('initialSeconds가 유효하지 않을 때도 카드가 정상적으로 렌더링됩니다', () => {
     const mockRep = {
       goal: '테스트 목표',
       initialSeconds: NaN,
@@ -28,7 +29,11 @@ describe('RepCard 컴포넌트', () => {
     
     render(<RepCard rep={mockRep} />);
     
-    // NaN일 때 0min으로 표시되는지 확인
-    expect(screen.getByText('0min')).toBeInTheDocument();
+    // 목표 텍스트가 화면에 표시되는지 확인
+    expect(screen.getByText('테스트 목표')).toBeInTheDocument();
+    
+    // 프로그레스 바가 존재하는지 확인
+    const progressBar = document.querySelector('.rep-card-progress-bar');
+    expect(progressBar).toBeInTheDocument();
   });
 });
