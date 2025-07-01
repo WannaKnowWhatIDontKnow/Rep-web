@@ -57,7 +57,7 @@ export function AuthProvider({ children }) {
         console.error('사용자 세션 확인 중 오류:', error);
         setUser(null);
       } finally {
-        setLoading(false);
+        setLoading(false); // loading 상태를 한 번만 false로 설정
       }
     };
 
@@ -76,7 +76,7 @@ export function AuthProvider({ children }) {
           // 다른 이벤트의 경우 세션을 다시 확인
           await refreshSession();
         }
-        setLoading(false);
+        setLoading(false); // 인증 상태 변경 후 loading 상태를 false로 설정
       }
     );
 
@@ -152,7 +152,16 @@ export function AuthProvider({ children }) {
     isAuthenticated: !!user,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  // 로딩 중일 때는 하위 컴포넌트를 렌더링하지 않음
+  if (loading) {
+    return null; // 또는 <LoadingSpinner />;
+  }
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 // 다른 컴포넌트에서 인증 컨텍스트를 쉽게 사용할 수 있게 해주는 훅

@@ -15,7 +15,7 @@ import AuthModal from './components/Auth/AuthModal';
 import UserProfile from './components/Auth/UserProfile';
 import ConfirmModal from './components/ConfirmModal'; // 확인 모달 컴포넌트 추가
 import RepDetailModal from './components/RepDetailModal'; // Rep 상세 정보 모달 컴포넌트 추가
-import useReps from './hooks/useReps'; // 새로운 커스텀 훅 추가
+import { useReps } from './hooks/useReps'; // 새로운 커스텀 훅 추가
 
 // App component (the overall structure of our website) is defined here.
 function App() {
@@ -33,8 +33,8 @@ function App() {
   const rightPanelRef = useRef(null);
   const leftPanelRef = useRef(null);
   
-  // useReps 훅 사용하여 렙 데이터 관리
-  const { repList, loading, fetchReps, addRep, getFilteredReps } = useReps(user, isAuthenticated);
+  // useReps 훅 사용하여 렙 데이터 관리 (이제 인자 없이 호출)
+  const { repList, loading, addRep, getFilteredReps } = useReps();
 
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [isPaused, setIsPaused] = useState(true); // Start as paused
@@ -48,7 +48,6 @@ function App() {
   
   useEffect(() => {
     if (isAuthenticated && user) {
-      // fetchReps는 이제 useReps 훅 내부에서 자동으로 호출됩니다.
       fetchLastSuccessfulRepMinutes(); // 로그인 사용자의 마지막 성공 렙 시간 불러오기
     } else if (!isAuthenticated) {
       // 비로그인 상태일 때 로컬스토리지에서 마지막 성공 렙 시간 불러오기
@@ -270,6 +269,7 @@ function App() {
   };
 
   // 이전 handleDropRep 함수는 삭제 - handleEarlyCompleteRep로 대체됨
+  // 이제 모든 데이터 로딩은 useReps 훅이 책임짐
 
   const handleTogglePause = () => {
     setIsPaused(prevIsPaused => {
@@ -290,14 +290,17 @@ function App() {
     
     console.log('회고 제출 시작:', notes, repToReview);
     
-    // useReps 훅의 addRep 함수를 사용하여 렙 데이터 저장
-    const savedRep = await addRep(repToReview, notes);
+    // repToReview와 notes를 합쳐서 하나의 객체로 전달
+    const completedRepData = {
+      ...repToReview,
+      notes: notes,
+    };
     
-    if (savedRep) {
-      console.log('렙 저장 성공:', savedRep);
-      // 오늘 날짜로 선택 변경 (데이터가 보이도록)
-      setSelectedDate(new Date());
-    }
+    // useReps 후크의 addRep 함수를 사용하여 렛 데이터 저장
+    await addRep(completedRepData);
+    
+    // 오늘 날짜로 선택 변경 (데이터가 보이도록)
+    setSelectedDate(new Date());
     
     // 모달 닫기
     setRetroModalOpen(false);

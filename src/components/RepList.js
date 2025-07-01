@@ -30,11 +30,14 @@ function RepList({ reps, onDropRep, onRepCardClick }) {
   // 드래그 상태에 따라 클래스 이름 동적 부여
   const dropZoneClassName = `drop-zone-wrapper ${isOver && canDrop ? 'is-over' : ''}`;
   const listClassName = 'list-area';
+  
+  // 핵심 수정 부분: reps 길이에 따라 클래스 이름을 동적으로 결정
+  const cardListClassName = `rep-card-list ${reps.length === 0 ? 'empty' : ''}`;
 
   return (
     // 드롭 존과 리스트 영역을 하나의 div로 통합
     <div className={`${dropZoneClassName} ${listClassName}`} ref={drop}>
-      <div className="rep-card-list">
+      <div className={cardListClassName}>
         {reps.length === 0 ? (
           <p className="empty-list-message">완료된 Rep이 없습니다.</p>
         ) : (

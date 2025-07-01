@@ -30,9 +30,8 @@
 .rep-card-list {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  /* 카드가 없을 때 메시지를 중앙에 위치시키기 위해 부모 컨테이너의 높이를 채움 */
+  /* justify-content: center;  <-- 이 줄 삭제 */
+  /* align-items: center;      <-- 이 줄 삭제 */
   flex-grow: 1;
 }
 
@@ -40,6 +39,12 @@
 .rep-card-list:has(.rep-card) {
   justify-content: flex-start;
   align-items: stretch;
+}
+
+/* 중요: 카드가 없을 때만 적용될 새로운 클래스 추가 */
+.rep-card-list.empty {
+  justify-content: center;
+  align-items: center;
 }
 
 .empty-list-message {

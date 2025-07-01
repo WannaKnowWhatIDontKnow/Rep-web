@@ -7,6 +7,14 @@ function RepCard({ rep, onClick }) { // onClick prop 추가
   const maxMinutes = 30; // 30분을 100% 기준으로 설정 (조정 가능)
   const repMinutes = rep.initialSeconds / 60;
   const progressWidth = Math.min((repMinutes / maxMinutes) * 100, 100);
+  
+  // 🔥 여기에 디버깅 코드 추가
+  console.log('RepCard 렌더링:', { 
+    id: rep.id, 
+    goal: rep.goal,
+    initialSeconds: rep.initialSeconds,
+    initial_seconds: rep.initial_seconds 
+  });
 
   return (
     <div className="rep-card" onClick={onClick}> {/* 최상위 div에 onClick 이벤트 연결 */}
