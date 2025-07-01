@@ -53,7 +53,6 @@ function Signup({ onToggleMode }) {
 
   return (
     <div className="auth-container">
-      <h2>회원가입</h2>
       
       {error && <div className="auth-error">{error}</div>}
       {success && <div className="auth-success">회원가입이 완료되었습니다! 이메일 확인 후 로그인해주세요.</div>}

@@ -1,33 +1,30 @@
+// src/components/Auth/AuthModal.js
 import React, { useState } from 'react';
+import BaseModal from '../BaseModal'; // 경로 주의
 import Login from './Login';
 import Signup from './Signup';
 import './Auth.css';
 
 function AuthModal({ isOpen, onClose }) {
   const [mode, setMode] = useState('login'); // 'login' 또는 'signup'
-  
-  if (!isOpen) return null;
-  
+
   const toggleMode = () => {
     setMode(mode === 'login' ? 'signup' : 'login');
   };
 
   return (
-    <div className="auth-modal-overlay" onClick={onClose}>
-      <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="auth-modal-header">
-          <h2>{mode === 'login' ? '로그인' : '회원가입'}</h2>
-          <button className="auth-modal-close" onClick={onClose}>&times;</button>
-        </div>
-        <div className="auth-modal-body">
-          {mode === 'login' ? (
-            <Login onToggleMode={toggleMode} onClose={onClose} />
-          ) : (
-            <Signup onToggleMode={toggleMode} />
-          )}
-        </div>
-      </div>
-    </div>
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={mode === 'login' ? '로그인' : '회원가입'}
+    >
+      {/* BaseModal의 children으로 Login 또는 Signup 컴포넌트를 전달 */}
+      {mode === 'login' ? (
+        <Login onToggleMode={toggleMode} onClose={onClose} />
+      ) : (
+        <Signup onToggleMode={toggleMode} />
+      )}
+    </BaseModal>
   );
 }
 

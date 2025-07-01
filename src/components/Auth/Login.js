@@ -35,7 +35,6 @@ function Login({ onToggleMode, onClose }) {
 
   return (
     <div className="auth-container">
-      <h2>로그인</h2>
       
       {error && <div className="auth-error">{error}</div>}
       

@@ -1,39 +1,4 @@
-.confirm-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.confirm-modal {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: 300px;
-  max-width: 90%;
-  text-align: center;
-}
-
-.confirm-modal h2 {
-  margin-top: 0;
-  color: #333;
-}
-
-.confirm-modal-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-  width: 100%;
-  gap: 12px;
-}
-
+/* src/components/ConfirmModal.css (수정 후) */
 .confirm-button, .cancel-button {
   border: none;
   border-radius: 12px;
@@ -42,6 +7,7 @@
   padding: 14px 0;
   font-size: 16px;
   transition: all 0.3s;
+  flex: 1; /* 너비를 유연하게 조절 */
 }
 
 .confirm-button {

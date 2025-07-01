@@ -1,4 +1,6 @@
+// src/components/RepDetailModal.js
 import React from 'react';
+import BaseModal from './BaseModal';
 import './RepDetailModal.css';
 
 // '종료 시간' 포맷팅 함수
@@ -22,37 +24,35 @@ const formatDuration = (totalSeconds) => {
 
 function RepDetailModal({ isOpen, onClose, rep }) {
   if (!isOpen || !rep) return null;
+  
+  const footerContent = (
+    <button onClick={onClose} className="submit-button">닫기</button>
+  );
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Rep 상세 정보</h2>
-          <button onClick={onClose} className="close-button">×</button>
-        </div>
-        <div className="modal-body">
-          <div className="detail-item">
-            <label>목표</label>
-            <span>{rep?.goal || '-'}</span>
-          </div>
-          <div className="detail-item">
-            <label>회고 노트</label>
-            <span>{rep?.notes || '-'}</span>
-          </div>
-          <div className="detail-item">
-            <label>종료 시간</label>
-            <span>{formatCompletionTime(rep?.completed_at)}</span>
-          </div>
-          <div className="detail-item">
-            <label>총 진행 시간</label>
-            <span>{formatDuration(rep?.initial_seconds)}</span>
-          </div>
-        </div>
-        <div className="modal-footer">
-            <button onClick={onClose} className="submit-button">닫기</button>
-        </div>
+    <BaseModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Rep 상세 정보"
+      footer={footerContent}
+    >
+      <div className="detail-item">
+        <label>목표</label>
+        <span>{rep?.goal || '-'}</span>
       </div>
-    </div>
+      <div className="detail-item">
+        <label>회고 노트</label>
+        <span>{rep?.notes || '-'}</span>
+      </div>
+      <div className="detail-item">
+        <label>종료 시간</label>
+        <span>{formatCompletionTime(rep?.completed_at)}</span>
+      </div>
+      <div className="detail-item">
+        <label>총 진행 시간</label>
+        <span>{formatDuration(rep?.initial_seconds)}</span>
+      </div>
+    </BaseModal>
   );
 }
 
