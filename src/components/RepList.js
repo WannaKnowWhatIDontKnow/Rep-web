@@ -2,17 +2,18 @@ import React from 'react';
 import { useDrop } from 'react-dnd';
 import RepCard from './RepCard';
 import './RepList.css';
+import logger from '../utils/logger'; // logger 임포트
 
 function RepList({ reps, onDropRep, onRepCardClick }) {
   // useDrop 훈을 부모 div에 적용
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: 'REP_CARD', // 'REP_CARD' 타입의 아이템만 받을 수 있음
     drop: (item, monitor) => {
-      console.log('드래그 앤 드롭 발생!', item);
+      logger.info('드래그 앤 드롭 발생!', item);
       if (onDropRep) {
         onDropRep();
       } else {
-        console.error('onDropRep 함수가 없습니다!');
+        logger.error('onDropRep 함수가 없습니다!');
       }
     },
     hover: (item, monitor) => {
@@ -33,6 +34,9 @@ function RepList({ reps, onDropRep, onRepCardClick }) {
   
   // 핵심 수정 부분: reps 길이에 따라 클래스 이름을 동적으로 결정
   const cardListClassName = `rep-card-list ${reps.length === 0 ? 'empty' : ''}`;
+  
+  // 🔥 여기에 디버깅 코드 추가
+  logger.info(`[RepList 렌더링] reps 개수: ${reps.length}, className: "${cardListClassName}"`);
 
   return (
     // 드롭 존과 리스트 영역을 하나의 div로 통합

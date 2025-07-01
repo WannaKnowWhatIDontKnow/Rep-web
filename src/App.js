@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import logger from './utils/logger'; // logger 임포트
+import ErrorBoundary from './components/ErrorBoundary'; // ErrorBoundary 임포트
 import './App.css';
 import "react-datepicker/dist/react-datepicker.css"; // Datepicker CSS
 import CurrentRep from './components/CurrentRep';
@@ -75,6 +77,8 @@ function App() {
     // ResizeObserver를 생성하여 right-panel의 높이 변경을 감지
     const resizeObserver = new ResizeObserver(() => {
       const rightPanelHeight = rightPanel.offsetHeight;
+      // 🔥 여기에 디버깅 코드 추가
+      logger.info(`[ResizeObserver] right-panel 높이: ${rightPanelHeight}px, left-panel max-height 설정`);
       leftPanel.style.maxHeight = `${rightPanelHeight}px`;
     });
 
@@ -106,22 +110,22 @@ function App() {
         .single();
       
       if (error) {
-        console.error('사용자 설정 불러오기 실패:', error);
+        logger.error('사용자 설정 불러오기 실패:', error);
         return;
       }
       
       if (data && data.last_successful_rep_minutes) {
-        console.log('마지막 성공 렙 시간 불러오기 성공:', data.last_successful_rep_minutes);
+        logger.info('마지막 성공 렙 시간 불러오기 성공:', data.last_successful_rep_minutes);
         setLastSuccessfulRepMinutes(data.last_successful_rep_minutes);
       }
     } catch (error) {
-      console.error('마지막 성공 렙 시간 불러오기 중 오류 발생:', error);
+      logger.error('마지막 성공 렙 시간 불러오기 중 오류 발생:', error);
     }
   };
   
   // 마지막 성공 렙 시간 저장 함수
   const saveLastSuccessfulRepMinutes = async (minutes) => {
-    console.log('마지막 성공 렙 시간 저장:', minutes);
+    logger.info('마지막 성공 렙 시간 저장:', minutes);
     
     if (isAuthenticated && user) {
       try {
@@ -135,17 +139,17 @@ function App() {
           });
         
         if (error) {
-          console.error('사용자 설정 저장 실패:', error);
+          logger.error('사용자 설정 저장 실패:', error);
         }
       } catch (error) {
-        console.error('마지막 성공 렙 시간 저장 중 오류 발생:', error);
+        logger.error('마지막 성공 렙 시간 저장 중 오류 발생:', error);
       }
     } else {
       // 비로그인 상태: 로컬스토리지에 저장
       try {
         localStorage.setItem('lastSuccessfulRepMinutes', minutes.toString());
       } catch (error) {
-        console.error('로컬스토리지에 마지막 성공 렙 시간 저장 실패:', error);
+        logger.error('로컬스토리지에 마지막 성공 렙 시간 저장 실패:', error);
       }
     }
   };
@@ -352,27 +356,35 @@ function App() {
         <div className="main-content">
         <div className="left-panel" ref={leftPanelRef}>
           {/* Calendar area */}
-          <CalendarSection 
-            selectedDate={selectedDate} 
-            setSelectedDate={setSelectedDate} 
-          />
+          <ErrorBoundary>
+            <CalendarSection 
+              selectedDate={selectedDate} 
+              setSelectedDate={setSelectedDate} 
+            />
+          </ErrorBoundary>
           {/* List area (core feature implementation target) */}
-          <RepList reps={filteredReps} onDropRep={handleEarlyCompleteRep} onRepCardClick={handleRepCardClick} />
+          <ErrorBoundary>
+            <RepList reps={filteredReps} onDropRep={handleEarlyCompleteRep} onRepCardClick={handleRepCardClick} />
+          </ErrorBoundary>
         </div>
         <div className="right-panel" ref={rightPanelRef}>
           {/* Current Rep area (core feature implementation target) */}
-          <CurrentRep
-          key={lastSuccessfulRepMinutes} // 이 key가 변경될 때마다 컴포넌트가 리셋됩니다.
-          rep={currentRep}
-          remainingSeconds={remainingSeconds}
-          isPaused={isPaused}
-          onTogglePause={handleTogglePause}
-          onStart={handleStartRep}
-          onDelete={handleDeleteRep}
-          defaultMinutes={lastSuccessfulRepMinutes}
-        />  
+          <ErrorBoundary>
+            <CurrentRep
+            key={lastSuccessfulRepMinutes} // 이 key가 변경될 때마다 컴포넌트가 리셋됩니다.
+            rep={currentRep}
+            remainingSeconds={remainingSeconds}
+            isPaused={isPaused}
+            onTogglePause={handleTogglePause}
+            onStart={handleStartRep}
+            onDelete={handleDeleteRep}
+            defaultMinutes={lastSuccessfulRepMinutes}
+            />
+          </ErrorBoundary>  
           {/* Dashboard area */}
-          <Dashboard reps={filteredReps} setActiveTab={setActiveTab} />
+          <ErrorBoundary>
+            <Dashboard reps={filteredReps} setActiveTab={setActiveTab} />
+          </ErrorBoundary>
         </div>
       </div>
       ) : (

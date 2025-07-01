@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import supabase from '../supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
+import logger from '../utils/logger'; // logger 임포트
 
 export function useReps() {
   const { user, isAuthenticated } = useAuth();
@@ -17,7 +18,7 @@ export function useReps() {
       try {
         if (user && isAuthenticated) {
           // 회원 데이터 로드
-          console.log(`[useReps] 회원(${user.id}) 데이터를 DB에서 로드합니다.`);
+          logger.info(`회원(${user.id}) 데이터를 DB에서 로드합니다.`);
           const { data, error } = await supabase
             .from('reps')
             .select('*')
@@ -28,12 +29,12 @@ export function useReps() {
           rawData = data || [];
         } else {
           // 비회원 데이터 로드
-          console.log('[useReps] 비회원 데이터를 로컬스토리지에서 로드합니다.');
+          logger.info('비회원 데이터를 로컬스토리지에서 로드합니다.');
           const localData = localStorage.getItem('repList');
           rawData = localData ? JSON.parse(localData) : [];
         }
       } catch (error) {
-        console.error('데이터 로드 중 에러 발생:', error);
+        logger.error('데이터 로드 중 에러 발생:', error);
         rawData = [];
       }
 
@@ -59,7 +60,7 @@ export function useReps() {
   useEffect(() => {
     // 로딩이 끝났고, 비회원 상태일 때만 실행
     if (!loading && !isAuthenticated) {
-      console.log('[useReps] 비회원 데이터를 로컬스토리지에 저장합니다.');
+      logger.info('비회원 데이터를 로컬스토리지에 저장합니다.');
       localStorage.setItem('repList', JSON.stringify(repList));
     }
   }, [repList, isAuthenticated, loading]); // repList가 바뀔 때마다 저장 시도
@@ -86,7 +87,7 @@ export function useReps() {
         .single();
       
       if (error) {
-        console.error('DB에 rep 저장 실패:', error);
+        logger.error('DB에 rep 저장 실패:', error);
         return;
       }
 
