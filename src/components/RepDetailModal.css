@@ -1,50 +1,85 @@
-/* src/components/RepDetailModal.css (수정 후) */
+/* src/components/RepDetailModal.css (새로운 스타일) */
 
-.detail-item {
+.detail-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* 섹션 간의 간격 */
+}
+
+/* 주인공: 회고 노트 섹션 */
+.notes-section {
+  background-color: #f8f9fa; /* 부드러운 배경색 */
+  border: 1px solid #e9ecef;
+  border-radius: 12px; /* 둥근 모서리 */
+  padding: 20px;
+  display: flex;
+  align-items: flex-start; /* 아이콘과 콘텐츠 상단 정렬 */
+  gap: 16px;
+}
+
+.notes-section .section-icon {
+  font-size: 20px;
+  color: #6E66FF; /* 앱의 메인 컬러로 포인트 */
+  margin-top: 4px; /* 텍스트와의 수직 정렬 미세 조정 */
+}
+
+.notes-content {
+  flex: 1;
+}
+
+.notes-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.notes-content p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #495057;
+  white-space: pre-wrap; /* 줄바꿈 유지 */
+  word-break: break-word; /* 긴 단어 줄바꿈 */
+}
+
+/* 조연: 하단 정보 섹션 */
+.info-footer {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start; /* 여러 줄일 경우를 대비해 상단 정렬 */
-  padding: 8px 0;
-  border-bottom: 1px solid #f0f0f0;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #fff;
+  border-top: 1px solid #f1f3f5;
+  margin: 0 -24px -24px; /* BaseModal의 body 패딩을 무시하고 하단에 붙임 */
+  padding: 16px 24px;   /* BaseModal의 body 패딩과 동일하게 맞춰줌 */
 }
 
-.detail-item:last-child {
-  border-bottom: none;
-}
-
-.detail-item label {
-  font-weight: 600;
-  color: #555;
-  flex-shrink: 0; /* 라벨이 줄어들지 않도록 */
-  margin-right: 16px;
-}
-
-.detail-item span {
-  color: #333;
-  text-align: right;
-  word-break: break-word; /* 긴 텍스트 줄바꿈 */
-}
-
-.modal-footer {
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
+.info-item {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #868e96; /* 덜 중요한 정보이므로 연한 색상 사용 */
 }
 
-.submit-button {
+.info-item svg {
+  font-size: 16px;
+}
+
+/* 닫기 버튼 스타일 (기존 .submit-button 클래스 이름 변경) */
+.detail-close-button {
   background-color: #6E66FF;
   color: white;
   border: none;
   border-radius: 8px;
   padding: 10px 20px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.submit-button:hover {
-  background-color: #5a52cc;
+.detail-close-button:hover {
+  background-color: #5851d1;
 }

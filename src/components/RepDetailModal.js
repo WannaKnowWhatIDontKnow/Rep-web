@@ -2,6 +2,8 @@
 import React from 'react';
 import BaseModal from './BaseModal';
 import './RepDetailModal.css';
+// 아이콘 임포트
+import { FaRegStickyNote, FaRegClock, FaStopwatch } from 'react-icons/fa';
 
 // '종료 시간' 포맷팅 함수
 const formatCompletionTime = (isoString) => {
@@ -26,31 +28,38 @@ function RepDetailModal({ isOpen, onClose, rep }) {
   if (!isOpen || !rep) return null;
   
   const footerContent = (
-    <button onClick={onClose} className="submit-button">닫기</button>
+    <button onClick={onClose} className="detail-close-button">닫기</button>
   );
 
   return (
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Rep 상세 정보"
+      title={rep?.goal || 'Rep 정보'}
       footer={footerContent}
     >
-      <div className="detail-item">
-        <label>목표</label>
-        <span>{rep?.goal || '-'}</span>
-      </div>
-      <div className="detail-item">
-        <label>회고 노트</label>
-        <span>{rep?.notes || '-'}</span>
-      </div>
-      <div className="detail-item">
-        <label>종료 시간</label>
-        <span>{formatCompletionTime(rep?.completed_at)}</span>
-      </div>
-      <div className="detail-item">
-        <label>총 진행 시간</label>
-        <span>{formatDuration(rep?.initial_seconds)}</span>
+      {/* 새로운 본문 구조 */}
+      <div className="detail-modal-body">
+        {/* 회고 노트 섹션 (주인공) */}
+        <div className="notes-section">
+          <FaRegStickyNote className="section-icon" />
+          <div className="notes-content">
+            <h3>회고 노트</h3>
+            <p>{rep?.notes || '작성된 노트가 없습니다.'}</p>
+          </div>
+        </div>
+
+        {/* 하단 정보 섹션 (조연) */}
+        <div className="info-footer">
+          <div className="info-item">
+            <FaRegClock />
+            <span>{formatCompletionTime(rep?.completed_at)}</span>
+          </div>
+          <div className="info-item">
+            <FaStopwatch />
+            <span>{formatDuration(rep?.initial_seconds)}</span>
+          </div>
+        </div>
       </div>
     </BaseModal>
   );
