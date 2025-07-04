@@ -1,22 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useDrag } from 'react-dnd';
 import './CurrentRep.css';
 
-function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, onDelete, defaultMinutes = 15 }) {
+function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, onDelete, defaultMinutes = 15, onInterrupt }) {
   const [goal, setGoal] = useState('');
   const [minutes, setMinutes] = useState(defaultMinutes); // 마지막으로 성공한 렙의 타이머 길이를 기본값으로 사용
   const [showForm, setShowForm] = useState(false);
   const [charCount, setCharCount] = useState(0); // 글자수 카운트 상태 추가
   
-  // useDrag 훈을 컴포넌트 최상위 레벨로 이동
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: 'REP_CARD', // 드래그 아이템의 종류를 정의
-    item: () => ({ rep }), // 드래그할 때 함께 전달할 데이터
-    canDrag: !!rep, // rep이 있을 때만 드래그 가능
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  }), [rep]); // rep이 변경될 때마다 훈 재실행
+
 
   const formatTime = (totalSeconds) => {
     const mins = Math.floor(totalSeconds / 60);
@@ -113,9 +104,7 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
   const renderActiveState = () => {
     return (
       <div 
-        className="current-rep-area active" 
-        ref={drag} 
-        style={{ opacity: isDragging ? 0.5 : 1, cursor: 'move' }}
+        className="current-rep-area active"
       >
         <div className="rep-goal">
           <span>{rep.goal}</span>
@@ -125,6 +114,7 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
         </div>
         <div className="rep-controls">
           <button onClick={onTogglePause}>{isPaused ? '▶' : 'II'}</button>
+          <button className="interrupt-button" onClick={onInterrupt}>중단</button>
           <button onClick={onDelete}>Delete</button>
         </div>
       </div>

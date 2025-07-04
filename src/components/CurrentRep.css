@@ -56,10 +56,6 @@
   transition: all 0.3s ease;
 }
 
-.current-rep-area.active:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 15px rgba(110, 102, 255, 0.3);
-}
 
 .rep-goal {
   font-size: 22px;
@@ -89,7 +85,7 @@
   display: flex;
   justify-content: center;
   gap: 12px;
-  width: 60%;
+  width: 80%; /* 3개 버튼이 들어가니 너비를 조금 늘려줌 */
 }
 
 .rep-controls button {
@@ -105,9 +101,20 @@
   transition: all 0.2s;
 }
 
-/* 버튼 색상 - Edit 버튼 제거됨 */
+/* 버튼 색상 */
 .rep-controls button:nth-child(1) { background-color: #328DFF; } /* Pause/Resume */
-.rep-controls button:nth-child(2) { background-color: #EA4335; } /* Delete */
+.rep-controls button:nth-child(2) { background-color: #FFC107; } /* 중단 버튼 */
+.rep-controls button:nth-child(3) { background-color: #EA4335; } /* Delete */
+
+/* 중단 버튼 스타일 */
+.interrupt-button {
+  background-color: #FFC107; /* 노란색 계열 */
+  color: white;
+}
+
+.interrupt-button:hover, .interrupt-button:active {
+  background-color: #e6ac00;
+}
 
 .rep-controls button:hover {
   opacity: 0.9;

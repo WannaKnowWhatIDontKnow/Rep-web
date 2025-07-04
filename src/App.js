@@ -4,8 +4,7 @@ import ErrorBoundary from './components/ErrorBoundary'; // ErrorBoundary 임포�
 import './App.css';
 import "react-datepicker/dist/react-datepicker.css"; // Datepicker CSS
 import CurrentRep from './components/CurrentRep';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+
 import RepList from './components/RepList';
 import RetrospectiveModal from './components/RetrospectiveModal';
 import Dashboard from './components/Dashboard';
@@ -194,11 +193,11 @@ function App() {
     }, 0);
   }, []);
   
-  // 중간에 Rep을 완료하는 함수 (드래그 앤 드롭으로 호출) - 이제는 확인 모달을 표시하는 역할만 함
-  const handleEarlyCompleteRep = () => {
-    console.log('handleEarlyCompleteRep 함수 실행됨!', currentRep);
+  // 중간에 Rep을 중단하는 함수 - 확인 모달을 표시하는 역할
+  const handleInterruptRep = () => {
+    console.log('handleInterruptRep 함수 실행됨!', currentRep);
     if (!currentRep) {
-      console.error('조기 완료할 Rep이 없습니다.');
+      console.error('중단할 Rep이 없습니다.');
       return;
     }
     
@@ -340,7 +339,6 @@ function App() {
 
   return (
     // Container for the entire app
-    <DndProvider backend={HTML5Backend}>
       <div className="app-container">
       {/* 헤더 영역에 로그인/회원가입 버튼 추가 */}
       <div className="app-header">
@@ -367,7 +365,7 @@ function App() {
           </ErrorBoundary>
           {/* List area (core feature implementation target) */}
           <ErrorBoundary>
-            <RepList reps={filteredReps} onDropRep={handleEarlyCompleteRep} onRepCardClick={handleRepCardClick} />
+            <RepList reps={filteredReps} onRepCardClick={handleRepCardClick} />
           </ErrorBoundary>
         </div>
         <div className="right-panel" ref={rightPanelRef}>
@@ -382,6 +380,7 @@ function App() {
             onStart={handleStartRep}
             onDelete={handleDeleteRep}
             defaultMinutes={lastSuccessfulRepMinutes}
+            onInterrupt={handleInterruptRep}
             />
           </ErrorBoundary>  
           {/* Dashboard area */}
@@ -423,7 +422,6 @@ function App() {
         rep={selectedRep}
       />
     </div>
-    </DndProvider>
   );
 }
 
