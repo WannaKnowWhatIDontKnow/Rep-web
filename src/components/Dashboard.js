@@ -1,29 +1,27 @@
 import React from 'react';
 import './Dashboard.css';
-import { TbRepeat } from 'react-icons/tb';
-import { IoTimeOutline } from 'react-icons/io5';
+import { IoTimeOutline, IoRepeat, IoBarChartSharp, IoLockClosedOutline } from 'react-icons/io5'; // 아이콘 임포트
 import { useAuth } from '../contexts/AuthContext';
 
-// 각 문자를 개별 박스에 렌더링하는 컴포넌트입니다.
-const DigitalDisplay = ({ value, className }) => {
-  const characters = String(value).split('');
-  return (
-    <div className={`digital-display-container ${className || ''}`}>
-      {characters.map((char, index) => (
-        <span key={index} className={`digit-box ${char === ':' ? 'colon' : ''}`}>
-          {char}
-        </span>
-      ))}
-    </div>
-  );
-};
 
-// 초를 HH:MM:SS 형식으로 변환하는 함수입니다.
-const formatTime = (totalSeconds) => {
+
+// MM:SS 또는 HH:MM:SS 형식으로 유연하게 변환하는 함수
+const formatTime = (totalSeconds, forceHours = false) => {
+    if (isNaN(totalSeconds) || totalSeconds === 0) {
+        return forceHours ? '00:00:00' : '00:00';
+    }
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    const paddedMinutes = String(minutes).padStart(2, '0');
+    const paddedSeconds = String(seconds).padStart(2, '0');
+
+    if (hours > 0 || forceHours) {
+        const paddedHours = String(hours).padStart(2, '0');
+        return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+    }
+    return `${paddedMinutes}:${paddedSeconds}`;
 };
 
 function Dashboard({ reps, setActiveTab }) {
@@ -37,47 +35,49 @@ function Dashboard({ reps, setActiveTab }) {
     return sum + (typeof seconds === 'number' && !isNaN(seconds) ? seconds : 0);
   }, 0);
   
-  console.log('대시보드 총 시간 계산:', totalTime, '초');
+  // 1. 새로운 지표 계산 (0으로 나누기 방지)
+  const averageTimeInSeconds = totalReps > 0 ? totalTime / totalReps : 0;
   
   const { isAuthenticated } = useAuth();
 
   return (
-    <div className="dashboard-final">
-      {/* Reps 섹션 */}
-      <div className="dash-section">
-        <div className="dash-section-header">
-          <TbRepeat className="header-icon reps-icon" />
-          <h2>Reps</h2>
+    // 3. 새로운 JSX 구조
+    <div className="new-dashboard">
+      <div className="main-metric">
+        <div className="metric-header">
+          <IoTimeOutline />
+          <span>총 학습 시간</span>
         </div>
-        <DigitalDisplay value={String(totalReps).padStart(2, '0')} className="reps-display" />
+        <div className="metric-value-large">{formatTime(totalTime, true)}</div>
       </div>
 
-      {/* Total time 섹션 */}
-      <div className="dash-section">
-        <div className="dash-section-header">
-          <IoTimeOutline className="header-icon time-icon" />
-          <h2>Total time</h2>
+      <div className="sub-metrics">
+        <div className="metric-card">
+          <div className="metric-header">
+            <IoRepeat />
+            <span>Reps</span>
+          </div>
+          <div className="metric-value-small">{totalReps}</div>
         </div>
-        <div className="time-display-wrapper">
-            <DigitalDisplay value={formatTime(totalTime)} className="time-display" />
+        <div className="metric-card">
+          <div className="metric-header">
+            <IoBarChartSharp />
+            <span>평균 시간</span>
+          </div>
+          <div className="metric-value-small">{formatTime(averageTimeInSeconds)}</div>
         </div>
       </div>
 
-
-      
-      {/* 통계 대시보드로 이동하는 버튼 */}
-      <div className="dash-section stats-navigation">
+      <div className="dashboard-cta">
         {isAuthenticated ? (
-          <button 
-            className="stats-button" 
-            onClick={() => setActiveTab('dashboard')}
-          >
-            주간/월간/연간 대시보드 보기
+          <button className="stats-button" onClick={() => setActiveTab('dashboard')}>
+            주간/월간 통계 보기
           </button>
         ) : (
-          <div className="stats-disabled">
+          <div className="stats-locked-wrapper">
             <button className="stats-button disabled" disabled>
-              주간/월간/연간 대시보드 보기
+              <IoLockClosedOutline />
+              주간/월간 통계 보기
             </button>
             <p className="stats-message">회원가입 시 이용 가능한 기능입니다</p>
           </div>
