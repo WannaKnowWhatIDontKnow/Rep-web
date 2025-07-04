@@ -1,75 +1,71 @@
-/* src/components/RetrospectiveModal.css (수정 후) */
+/* src/components/RetrospectiveModal.css (새로운 스타일) */
 
-.retro-modal .form-group {
-  margin-bottom: 16px;
+.retro-modal-body {
+  padding: 8px 0; /* 상하 패딩을 약간 주어 여유 공간 확보 */
 }
 
-.status-buttons {
-  display: flex;
-  gap: 12px;
-}
-
-.status-btn {
-  flex-grow: 1;
-  flex-basis: 0;
-  padding: 12px 0;
-  border: 1px solid #e0e0e0;
-  background-color: #f0f2f5;
+/* 회고 노트 입력 섹션 */
+.notes-input-section {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
   border-radius: 12px;
-  cursor: pointer;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.notes-input-section .section-icon {
+  font-size: 20px;
+  color: #6E66FF;
+  margin-top: 4px;
+}
+
+.notes-input-content {
+  flex: 1;
+}
+
+.notes-input-content label {
+  display: block;
+  margin: 0 0 12px 0;
   font-size: 16px;
   font-weight: 600;
-  color: #555555;
-  transition: all 0.2s;
+  color: #343a40;
 }
 
-.status-btn:hover {
-  border-color: #8c88ff;
-  background-color: #f5f5ff;
-}
-
-/* 선택된 상태 버튼의 스타일 */
-.status-btn.selected {
-  color: white;
-  border: 1px solid transparent;
-}
-
-.status-btn.selected:nth-child(1) { background-color: #4CAF50; } /* Achieved */
-.status-btn.selected:nth-child(2) { background-color: #F44336; } /* Failed */
-.status-btn.selected:nth-child(3) { background-color: #FFC107; } /* Goal Changed */
-
-
-.retro-modal textarea {
+.notes-input-content textarea {
   width: 100%;
+  box-sizing: border-box; /* 패딩, 보더가 너비에 포함되도록 */
   padding: 12px 16px;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  font-size: 16px;
-  box-sizing: border-box;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 15px;
+  line-height: 1.6;
   resize: vertical;
-  min-height: 100px;
+  min-height: 120px;
   transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: inherit; /* 부모 폰트 상속 */
 }
 
-.retro-modal textarea:focus {
+.notes-input-content textarea:focus {
   outline: none;
   border-color: #6E66FF;
   box-shadow: 0 0 0 3px rgba(110, 102, 255, 0.2);
 }
 
-.submit-button {
+/* 제출 버튼 스타일 */
+.retro-submit-button {
   background-color: #6E66FF;
   color: white;
   border: none;
-  border-radius: 12px;
-  padding: 14px 28px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.submit-button:hover {
+.retro-submit-button:hover {
   background-color: #5851d1;
-  transform: translateY(-2px);
 }

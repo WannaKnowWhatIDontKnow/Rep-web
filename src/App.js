@@ -29,13 +29,14 @@ function App() {
   const [showConfirmModal, setShowConfirmModal] = useState(false); // 확인 모달 표시 상태
   const [selectedRep, setSelectedRep] = useState(null); // 선택된 Rep 상태 추가
   const [isDetailModalOpen, setDetailModalOpen] = useState(false); // 상세 정보 모달 표시 상태 추가
+  const [repToDelete, setRepToDelete] = useState(null); // 삭제할 rep의 정보를 저장
 
   const { user, isAuthenticated } = useAuth();
   const rightPanelRef = useRef(null);
   const leftPanelRef = useRef(null);
   
   // useReps 훅 사용하여 렙 데이터 관리 (이제 인자 없이 호출)
-  const { repList, loading, addRep, getFilteredReps } = useReps();
+  const { repList, loading, addRep, getFilteredReps, deleteRep } = useReps();
 
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [isPaused, setIsPaused] = useState(true); // Start as paused
@@ -334,6 +335,25 @@ function App() {
     setSelectedRep(rep);
     setDetailModalOpen(true);
   };
+  
+  // 상세 모달에서 '삭제' 버튼 클릭 시 호출될 함수
+  const handleDeleteRequest = (rep) => {
+    if (!rep) return;
+    setRepToDelete(rep); // 삭제할 Rep 정보 저장
+    setDetailModalOpen(false); // 상세 정보 모달은 닫음
+  };
+
+  // 최종 확인 모달에서 '확인' 클릭 시 호출될 함수
+  const handleConfirmDelete = async () => {
+    if (!repToDelete) return;
+    await deleteRep(repToDelete.id);
+    setRepToDelete(null); // 삭제 프로세스 종료 및 초기화
+  };
+
+  // 최종 확인 모달 '취소' 클릭 시
+  const handleCancelDelete = () => {
+    setRepToDelete(null); // 삭제 프로세스 취소
+  };
 
 
 
@@ -412,6 +432,16 @@ function App() {
         onCancel={() => setShowConfirmModal(false)}
       />
       
+      {/* 최종 삭제 확인을 위한 확인 모달. repToDelete가 있을 때만 열림 */}
+      <ConfirmModal
+        isOpen={!!repToDelete}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        title="삭제 확인"
+      >
+        <p>정말 이 Rep을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+      </ConfirmModal>
+      
       {/* Rep 상세 정보 모달 */}
       <RepDetailModal 
         isOpen={isDetailModalOpen}
@@ -420,6 +450,7 @@ function App() {
           setSelectedRep(null);
         }}
         rep={selectedRep}
+        onDeleteRequest={handleDeleteRequest} // 삭제 요청 함수 전달
       />
     </div>
   );

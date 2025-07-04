@@ -112,5 +112,35 @@ export function useReps() {
     });
   };
 
-  return { repList, loading, addRep, getFilteredReps };
+  // Rep 삭제 함수
+  const deleteRep = async (repId) => {
+    if (!repId) {
+      logger.error('삭제할 Rep의 ID가 없습니다.');
+      return;
+    }
+
+    try {
+      if (isAuthenticated && user) {
+        // 회원: Supabase DB에서 삭제
+        const { error } = await supabase
+          .from('reps')
+          .delete()
+          .eq('id', repId);
+
+        if (error) throw error;
+        logger.info(`DB에서 Rep(id: ${repId}) 삭제 성공`);
+      } else {
+        // 비회원: 로컬스토리지 데이터는 이미 repList state에 있으므로 별도 조치 필요 없음
+        logger.info(`로컬스토리지용 Rep(id: ${repId}) 삭제 준비`);
+      }
+
+      // 공통 로직: 화면(state)에서 해당 Rep 제거
+      setRepList(currentList => currentList.filter(rep => rep.id !== repId));
+
+    } catch (error) {
+      logger.error('Rep 삭제 중 에러 발생:', error);
+    }
+  };
+
+  return { repList, loading, addRep, getFilteredReps, deleteRep };
 }

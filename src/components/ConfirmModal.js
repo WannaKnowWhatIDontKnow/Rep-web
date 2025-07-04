@@ -2,7 +2,7 @@ import React from 'react';
 import BaseModal from './BaseModal';
 import './ConfirmModal.css';
 
-function ConfirmModal({ isOpen, onConfirm, onCancel }) {
+function ConfirmModal({ isOpen, onConfirm, onCancel, title = '확인', children }) {
   const footerContent = (
     <>
       <button className="confirm-button" onClick={onConfirm}>확인</button>
@@ -14,10 +14,10 @@ function ConfirmModal({ isOpen, onConfirm, onCancel }) {
     <BaseModal
       isOpen={isOpen}
       onClose={onCancel}
-      title="확인"
+      title={title}
       footer={footerContent}
     >
-      <p style={{ textAlign: 'center', margin: 0 }}>정말 렙을 종료하시겠습니까?</p>
+      {children || <p style={{ textAlign: 'center', margin: 0 }}>정말 렙을 종료하시겠습니까?</p>}
     </BaseModal>
   );
 };

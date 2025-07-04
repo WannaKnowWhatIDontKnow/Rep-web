@@ -67,7 +67,35 @@
   font-size: 16px;
 }
 
-/* 닫기 버튼 스타일 (기존 .submit-button 클래스 이름 변경) */
+/* 모달 푸터 스타일 */
+.detail-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* 삭제 버튼 스타일 - 새로운 클래스 */
+.detail-delete-button {
+  background-color: #f44336; /* 빨간색 */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: block;
+  margin-left: auto; /* 오른쪽 정렬을 위해 auto를 왼쪽에만 적용 */
+  margin-right: 0;
+  min-width: 100px;
+}
+
+.detail-delete-button:hover {
+  background-color: #d32f2f;
+}
+
+/* 닫기 버튼 스타일 */
 .detail-close-button {
   background-color: #6E66FF;
   color: white;

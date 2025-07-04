@@ -3,7 +3,7 @@ import React from 'react';
 import BaseModal from './BaseModal';
 import './RepDetailModal.css';
 // 아이콘 임포트
-import { FaRegStickyNote, FaRegClock, FaStopwatch } from 'react-icons/fa';
+import { FaRegStickyNote, FaRegClock, FaStopwatch, FaTrashAlt } from 'react-icons/fa';
 
 // '종료 시간' 포맷팅 함수
 const formatCompletionTime = (isoString) => {
@@ -24,11 +24,13 @@ const formatDuration = (totalSeconds) => {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
-function RepDetailModal({ isOpen, onClose, rep }) {
+function RepDetailModal({ isOpen, onClose, rep, onDeleteRequest }) {
   if (!isOpen || !rep) return null;
   
   const footerContent = (
-    <button onClick={onClose} className="detail-close-button">닫기</button>
+    <button onClick={() => onDeleteRequest && onDeleteRequest(rep)} className="detail-delete-button">
+      삭제
+    </button>
   );
 
   return (
