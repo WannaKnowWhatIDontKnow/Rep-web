@@ -30,6 +30,7 @@ function App() {
   const [selectedRep, setSelectedRep] = useState(null); // 선택된 Rep 상태 추가
   const [isDetailModalOpen, setDetailModalOpen] = useState(false); // 상세 정보 모달 표시 상태 추가
   const [repToDelete, setRepToDelete] = useState(null); // 삭제할 rep의 정보를 저장
+  const [isDeleteCurrentRepModalOpen, setDeleteCurrentRepModalOpen] = useState(false); // CurrentRep 삭제 확인 모달 상태
 
   const { user, isAuthenticated } = useAuth();
   const rightPanelRef = useRef(null);
@@ -262,10 +263,27 @@ function App() {
 
 
 
-  const handleDeleteRep = () => {
-    if (window.confirm('Are you sure you want to delete this Rep?')) {
-      setCurrentRep(null);
-    }
+  // CurrentRep 삭제 관련 핸들러 함수들
+  const handleDeleteCurrentRepRequest = () => {
+    // 'Delete' 버튼이 눌리면 모달을 열기만 함
+    setDeleteCurrentRepModalOpen(true);
+  };
+
+  const confirmDeleteCurrentRep = () => {
+    // 모달에서 '확인'을 누르면 실제 삭제 로직 실행
+    setCurrentRep(null);
+    setDeleteCurrentRepModalOpen(false);
+  };
+
+  const cancelDeleteCurrentRep = () => {
+    // 모달에서 '취소'를 누르면 모달만 닫음
+    setDeleteCurrentRepModalOpen(false);
+  };
+  
+  // 기존 함수 - 상세 모달에서 삭제 요청 시 사용
+  const handleDeleteRep = (rep) => {
+    // Rep 상세 모달에서 삭제 요청 시
+    setRepToDelete(rep);
   };
 
   // 이전 handleDropRep 함수는 삭제 - handleEarlyCompleteRep로 대체됨
@@ -398,7 +416,7 @@ function App() {
             isPaused={isPaused}
             onTogglePause={handleTogglePause}
             onStart={handleStartRep}
-            onDelete={handleDeleteRep}
+            onDeleteRequest={handleDeleteCurrentRepRequest}
             defaultMinutes={lastSuccessfulRepMinutes}
             onInterrupt={handleInterruptRep}
             />
@@ -440,6 +458,16 @@ function App() {
         title="삭제 확인"
       >
         <p>정말 이 Rep을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p>
+      </ConfirmModal>
+      
+      {/* CurrentRep 삭제 확인을 위한 새로운 ConfirmModal 추가 */}
+      <ConfirmModal
+        isOpen={isDeleteCurrentRepModalOpen}
+        onConfirm={confirmDeleteCurrentRep}
+        onCancel={cancelDeleteCurrentRep}
+        title="삭제 확인"
+      >
+        <p>진행 중인 Rep을 정말 삭제하시겠습니까?</p>
       </ConfirmModal>
       
       {/* Rep 상세 정보 모달 */}

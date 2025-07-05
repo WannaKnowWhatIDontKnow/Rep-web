@@ -186,3 +186,13 @@
     visibility: hidden;
     pointer-events: none;
 }
+
+/*
+  [최종 해결책] 
+  라이브러리 기본 CSS의 keyboard-selected 스타일을 강제로 덮어쓴다.
+  이 클래스는 다른 월을 볼 때, selected prop과 같은 '일(day)'에 적용된다.
+*/
+.react-datepicker__day--keyboard-selected {
+    background-color: transparent !important;
+    color: inherit !important; /* 글자색도 원래대로 되돌림 */
+}

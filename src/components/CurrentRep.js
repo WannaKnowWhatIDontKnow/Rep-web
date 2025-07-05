@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './CurrentRep.css';
 
-function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, onDelete, defaultMinutes = 15, onInterrupt }) {
+function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, onDeleteRequest, defaultMinutes = 15, onInterrupt }) {
   const [goal, setGoal] = useState('');
   const [minutes, setMinutes] = useState(defaultMinutes); // 마지막으로 성공한 렙의 타이머 길이를 기본값으로 사용
   const [showForm, setShowForm] = useState(false);
@@ -115,7 +115,7 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
         <div className="rep-controls">
           <button onClick={onTogglePause}>{isPaused ? '▶' : 'II'}</button>
           <button className="interrupt-button" onClick={onInterrupt}>중단</button>
-          <button onClick={onDelete}>Delete</button>
+          <button onClick={onDeleteRequest}>Delete</button>
         </div>
       </div>
     );
