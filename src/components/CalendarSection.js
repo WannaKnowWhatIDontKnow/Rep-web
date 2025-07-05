@@ -3,12 +3,9 @@ import DatePicker from 'react-datepicker';
 import { IoCalendarClearOutline } from "react-icons/io5";
 import './CalendarSection.css';
 
-// 날짜를 'yy.mm.dd' 형식으로 변환하는 유틸리티 함수
+// 날짜를 포맷팅하는 유틸리티 함수
 const formatDate = (date) => {
-    const year = date.getFullYear().toString().slice(-2);
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}.${month}.${day}`;
+    return new Intl.DateTimeFormat('en-US', { year: 'numeric', month: 'long', day: 'numeric' }).format(date);
 };
 
 const CalendarSection = ({ selectedDate, setSelectedDate }) => {
@@ -26,12 +23,15 @@ const CalendarSection = ({ selectedDate, setSelectedDate }) => {
             <span className="date-display">
                 {formatDate(selectedDate)}
             </span>
-            <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
-                customInput={<CustomDateButton />}
-                popperPlacement="bottom-end"
-            />
+            {/* ✨ 이 부분이 핵심적인 변경사항입니다. */}
+            <div className="datepicker-container">
+                <DatePicker
+                    selected={selectedDate}
+                    onChange={(date) => setSelectedDate(date)}
+                    customInput={<CustomDateButton />}
+                    popperPlacement="bottom-end"
+                />
+            </div>
         </div>
     );
 };

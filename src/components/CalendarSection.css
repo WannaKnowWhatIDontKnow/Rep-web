@@ -69,6 +69,21 @@
 }
 
 
+/* DatePicker를 감싸는 새로운 컨테이너 */
+.datepicker-container {
+    /*
+     * 이 컨테이너는 flex-item으로서 동작합니다.
+     * position: relative를 주어, 혹시 모를 내부 요소의
+     * absolute 포지셔닝에 대한 기준점이 되게 합니다.
+     * 이 자체로는 시각적인 스타일이 거의 없습니다.
+     * 오직 레이아웃 안정화를 위한 구조적 역할입니다.
+     */
+    position: relative;
+    display: flex; /* 내부의 datepicker-wrapper가 잘 자리잡도록 */
+    align-items: center;
+    justify-content: center;
+}
+
 /* 래퍼 컨테이너 스타일 초기화 */
 .react-datepicker-wrapper {
     display: inline-block; /* 기본값이지만 명시 */
@@ -111,6 +126,14 @@
     border-color: #495057;
 }
 
+/* 요일과 날짜 공통 스타일 */
+.react-datepicker__day-name, .react-datepicker__day {
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    margin: 2px;
+}
+
 /* 요일 (S, M, T, W, T, F, S) */
 .react-datepicker__day-name {
     color: #868e96;
@@ -121,9 +144,6 @@
 .react-datepicker__day {
     border-radius: 50%;
     transition: background-color 0.2s ease, color 0.2s ease;
-    width: 36px;
-    height: 36px;
-    line-height: 36px;
 }
 
 .react-datepicker__day:hover {
@@ -132,23 +152,22 @@
 }
 
 /* 오늘 날짜 */
-.react-datepicker__day--today {
+.react-datepicker__day--today:not(.react-datepicker__day--outside-month) {
     font-weight: 700;
-    /* 오늘 날짜에 보라색 테두리를 줘서 강조 */
-    border: 1px solid #8c88ff; 
 }
-.react-datepicker__day--today:hover {
+.react-datepicker__day--today:not(.react-datepicker__day--outside-month):hover {
     background-color: #f1f3f5;
 }
 
 
 /* 선택된 날짜 */
-.react-datepicker__day--selected {
+.react-datepicker__day--selected:not(.react-datepicker__day--outside-month) {
     background-color: #6E66FF;
     color: white;
     border-radius: 50%;
+    border: none;
 }
-.react-datepicker__day--selected:hover {
+.react-datepicker__day--selected:not(.react-datepicker__day--outside-month):hover {
     background-color: #5851d1;
 }
 
@@ -160,4 +179,10 @@
 /* 5. 캠린더 팝업 꼬리 제거 */
 .react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle {
     display: none;
+}
+
+/* 외부 날짜 숨기기 */
+.react-datepicker__day--outside-month {
+    visibility: hidden;
+    pointer-events: none;
 }
