@@ -1,6 +1,6 @@
 import React from 'react';
 import DatePicker from 'react-datepicker';
-import { FaCalendarAlt } from 'react-icons/fa';
+import { IoCalendarClearOutline } from "react-icons/io5";
 import './CalendarSection.css';
 
 // 날짜를 'yy.mm.dd' 형식으로 변환하는 유틸리티 함수
@@ -13,24 +13,25 @@ const formatDate = (date) => {
 
 const CalendarSection = ({ selectedDate, setSelectedDate }) => {
 
-    // DatePicker에 표시될 커스텀 아이콘
-    const CustomCalendarIcon = React.forwardRef(({ onClick }, ref) => (
-        <button onClick={onClick} ref={ref} className="calendar-icon-button">
-            <FaCalendarAlt />
+    // DatePicker에 표시될 커스텀 버튼
+    const CustomDateButton = React.forwardRef(({ onClick }, ref) => (
+        <button onClick={onClick} ref={ref} className="date-select-button">
+            <IoCalendarClearOutline />
+            <span>날짜 선택</span>
         </button>
     ));
 
     return (
         <div className="calendar-section">
-            <DatePicker
-                selected={selectedDate}
-                onChange={(date) => setSelectedDate(date)}
-                customInput={<CustomCalendarIcon />}
-                popperPlacement="bottom-start"
-            />
             <span className="date-display">
                 {formatDate(selectedDate)}
             </span>
+            <DatePicker
+                selected={selectedDate}
+                onChange={(date) => setSelectedDate(date)}
+                customInput={<CustomDateButton />}
+                popperPlacement="bottom-end"
+            />
         </div>
     );
 };

@@ -2,27 +2,11 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 24px;
+    padding: 12px 20px; /* 여백 조정 */
     background-color: #fff;
     border-radius: 24px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-}
-
-.calendar-icon-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 24px;
-    color: #555;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    transition: color 0.2s;
-}
-
-.calendar-icon-button:hover {
-    color: #6E66FF;
 }
 
 .date-display {
@@ -31,7 +15,149 @@
     color: #333;
 }
 
-/* react-datepicker가 다른 요소들 위에 보이도록 z-index 설정 */
+/* ✨ 날짜 선택 버튼 스타일 전면 수정 */
+.date-select-button {
+    display: flex;
+    align-items: center;
+    gap: 6px; /* 아이콘과 텍스트 간격 미세 조정 */
+    
+    /* 1. 기본 스타일: 배경과 테두리 제거 */
+    background-color: transparent;
+    border: none;
+    
+    border-radius: 8px; /* 호버 효과를 위해 유지 */
+    padding: 8px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #868e96; /* 튀지 않는 연한 회색 */
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* 2. 호버 스타일: 색상 변화로 피드백 */
+.date-select-button:hover {
+    background-color: #F4F2FF; /* 매우 연한 보라색 배경 */
+    color: #6E66FF; /* 메인 보라색 텍스트 */
+    transform: none; /* 기존에 있던 translateY 제거 */
+    box-shadow: none; /* 기존에 있던 box-shadow 제거 */
+}
+
+/* 3. 포커스와 활성 스타일: 위치 이동 문제 해결 */
+/* 클릭되는 바로 그 순간 (Active State) */
+.date-select-button:active {
+    /*
+     * active 상태에서 브라우저가 기본적으로 적용하는
+     * transform 이나 border 변경을 막기 위함
+     */
+    transform: none;
+    border: none;
+}
+
+/*
+ * 포커스와 활성 상태 모두에서 outline과 box-shadow가
+ * 없도록 보장하는 결합 선택자
+ */
+.date-select-button:focus,
+.date-select-button:active {
+    outline: none; /* 브라우저 기본 포커스 테두리 제거 (가장 중요) */
+    box-shadow: none;
+}
+
+/* 4. 버튼 내 아이콘 스타일 */
+.date-select-button svg {
+    font-size: 18px; /* 아이콘 크기 살짝 키움 */
+}
+
+
+/* 래퍼 컨테이너 스타일 초기화 */
+.react-datepicker-wrapper {
+    display: inline-block; /* 기본값이지만 명시 */
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+/* --- react-datepicker 스타일 오버라이딩 --- */
+
+/* 전체 팝업 컨테이너 */
+.react-datepicker {
+    font-family: system-ui, -apple-system, sans-serif;
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* 팝업 헤더 */
+.react-datepicker__header {
+    background-color: #fff;
+    border-bottom: 1px solid #f1f3f5;
+    padding-top: 15px;
+}
+
+/* 현재 월 표시 (e.g., "October 2023") */
+.react-datepicker__current-month {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #343a40;
+    padding-bottom: 10px;
+}
+
+/* 이전/다음 달 화살표 */
+.react-datepicker__navigation-icon::before {
+    border-color: #adb5bd;
+    border-width: 2px 2px 0 0;
+}
+.react-datepicker__navigation:hover .react-datepicker__navigation-icon::before {
+    border-color: #495057;
+}
+
+/* 요일 (S, M, T, W, T, F, S) */
+.react-datepicker__day-name {
+    color: #868e96;
+    font-weight: 500;
+}
+
+/* 각 날짜 */
+.react-datepicker__day {
+    border-radius: 50%;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+}
+
+.react-datepicker__day:hover {
+    background-color: #f1f3f5;
+    border-radius: 50%;
+}
+
+/* 오늘 날짜 */
+.react-datepicker__day--today {
+    font-weight: 700;
+    /* 오늘 날짜에 보라색 테두리를 줘서 강조 */
+    border: 1px solid #8c88ff; 
+}
+.react-datepicker__day--today:hover {
+    background-color: #f1f3f5;
+}
+
+
+/* 선택된 날짜 */
+.react-datepicker__day--selected {
+    background-color: #6E66FF;
+    color: white;
+    border-radius: 50%;
+}
+.react-datepicker__day--selected:hover {
+    background-color: #5851d1;
+}
+
+/* 팝업이 다른 요소 위에 보이도록 z-index 유지 */
 .react-datepicker-popper {
     z-index: 10;
+}
+
+/* 5. 캠린더 팝업 꼬리 제거 */
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle {
+    display: none;
 }
