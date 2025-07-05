@@ -1,54 +1,70 @@
 import React from 'react';
 import './Dashboard.css';
-import { IoTimeOutline, IoRepeat, IoBarChartSharp, IoLockClosedOutline } from 'react-icons/io5'; // 아이콘 임포트
+import { IoTimeOutline, IoRepeat, IoBarChartSharp, IoLockClosedOutline } from 'react-icons/io5';
 import { useAuth } from '../contexts/AuthContext';
 
 
 
-// MM:SS 또는 HH:MM:SS 형식으로 유연하게 변환하는 함수
+// Function to format time as MM:SS or HH:MM:SS and return both value and unit
 const formatTime = (totalSeconds, forceHours = false) => {
-    if (isNaN(totalSeconds) || totalSeconds === 0) {
-        return forceHours ? '00:00:00' : '00:00';
+    // Floor the total seconds to remove decimal points
+    const safeTotalSeconds = Math.floor(totalSeconds);
+    
+    if (isNaN(safeTotalSeconds) || safeTotalSeconds === 0) {
+        const value = forceHours ? '00:00:00' : '00:00';
+        const unit = forceHours ? 'HH:MM:SS' : 'MM:SS';
+        return { value, unit };
     }
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
+    
+    const hours = Math.floor(safeTotalSeconds / 3600);
+    const minutes = Math.floor((safeTotalSeconds % 3600) / 60);
+    const seconds = safeTotalSeconds % 60;
 
     const paddedMinutes = String(minutes).padStart(2, '0');
     const paddedSeconds = String(seconds).padStart(2, '0');
 
     if (hours > 0 || forceHours) {
         const paddedHours = String(hours).padStart(2, '0');
-        return `${paddedHours}:${paddedMinutes}:${paddedSeconds}`;
+        return {
+            value: `${paddedHours}:${paddedMinutes}:${paddedSeconds}`,
+            unit: 'HH:MM:SS'
+        };
     }
-    return `${paddedMinutes}:${paddedSeconds}`;
+    return {
+        value: `${paddedMinutes}:${paddedSeconds}`,
+        unit: 'MM:SS'
+    };
 };
 
 function Dashboard({ reps, setActiveTab }) {
   const totalReps = reps.length;
   
-  // 시간 계산 시 NaN 처리 및 데이터 형식 불일치 해결
+  // Handle NaN and data format inconsistencies when calculating time
   const totalTime = reps.reduce((sum, rep) => {
-    // initial_seconds 또는 initialSeconds 필드 사용, 둘 다 없거나 NaN이면 0 사용
+    // Use initial_seconds or initialSeconds field, default to 0 if both are missing or NaN
     const seconds = rep.initial_seconds || rep.initialSeconds;
-    // 숫자가 아니거나 NaN인 경우 0으로 처리
+    // Handle non-numeric or NaN values by using 0
     return sum + (typeof seconds === 'number' && !isNaN(seconds) ? seconds : 0);
   }, 0);
   
-  // 1. 새로운 지표 계산 (0으로 나누기 방지)
-  const averageTimeInSeconds = totalReps > 0 ? totalTime / totalReps : 0;
+  // Calculate average time with Math.floor to remove decimal points
+  const averageTimeInSeconds = totalReps > 0 ? Math.floor(totalTime / totalReps) : 0;
+  
+  // Format times with the updated formatTime function
+  const totalTimeFormatted = formatTime(totalTime, true);
+  const averageTimeFormatted = formatTime(averageTimeInSeconds);
   
   const { isAuthenticated } = useAuth();
 
   return (
-    // 3. 새로운 JSX 구조
     <div className="new-dashboard">
       <div className="main-metric">
         <div className="metric-header">
           <IoTimeOutline />
-          <span>총 학습 시간</span>
+          <span>Total Time</span>
         </div>
-        <div className="metric-value-large">{formatTime(totalTime, true)}</div>
+        <div className="metric-value-large">{totalTimeFormatted.value}</div>
+        <div className="metric-unit">{totalTimeFormatted.unit}</div>
       </div>
 
       <div className="sub-metrics">
@@ -62,24 +78,25 @@ function Dashboard({ reps, setActiveTab }) {
         <div className="metric-card">
           <div className="metric-header">
             <IoBarChartSharp />
-            <span>평균 시간</span>
+            <span>Average Time</span>
           </div>
-          <div className="metric-value-small">{formatTime(averageTimeInSeconds)}</div>
+          <div className="metric-value-small">{averageTimeFormatted.value}</div>
+          <div className="metric-unit">{averageTimeFormatted.unit}</div>
         </div>
       </div>
 
       <div className="dashboard-cta">
         {isAuthenticated ? (
           <button className="stats-button" onClick={() => setActiveTab('dashboard')}>
-            주간/월간 통계 보기
+            View Weekly/Monthly Stats
           </button>
         ) : (
           <div className="stats-locked-wrapper">
             <button className="stats-button disabled" disabled>
               <IoLockClosedOutline />
-              주간/월간 통계 보기
+              View Weekly/Monthly Stats
             </button>
-            <p className="stats-message">회원가입 시 이용 가능한 기능입니다</p>
+            <p className="stats-message">Sign up to unlock this feature</p>
           </div>
         )}
       </div>

@@ -104,3 +104,17 @@
   color: #868e96;
   margin-top: 12px;
 }
+
+/* 시간 단위 표시를 위한 스타일 */
+.metric-unit {
+  font-size: 12px;
+  font-weight: 500;
+  color: #adb5bd; /* 눈에 띄지 않는 연한 색상 */
+  margin-top: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* 서브 메트릭 카드의 단위는 조금 더 여백이 필요 */
+.sub-metrics .metric-card .metric-unit {
+  margin-top: 8px;
+}
