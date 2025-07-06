@@ -35,7 +35,11 @@ const CalendarSection: React.FC<CalendarSectionProps> = ({ selectedDate, setSele
             <div className="datepicker-container">
                 <DatePicker
                     selected={selectedDate}
-                    onChange={(date: Date) => setSelectedDate(date)}
+                    onChange={(date: Date | null) => {
+                      if (date) {
+                        setSelectedDate(date);
+                      }
+                    }}
                     customInput={<CustomDateButton />}
                     popperPlacement="bottom-end"
                 />

@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import RepCard from './RepCard';
-import { Rep } from '../types';
+import { Rep } from '../types/index';
 
 describe('RepCard 컴포넌트', () => {
   test('렙 카드가 올바르게 렌더링됩니다', () => {

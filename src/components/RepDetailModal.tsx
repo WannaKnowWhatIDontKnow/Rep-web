@@ -14,7 +14,7 @@ interface RepDetailModalProps {
 }
 
 // '종료 시간' 포맷팅 함수
-const formatCompletionTime = (isoString: string | undefined): string => {
+const formatCompletionTime = (isoString: string | null | undefined): string => {
   if (!isoString) return 'N/A';
   const date = new Date(isoString);
   return date.toLocaleString('ko-KR', { year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });

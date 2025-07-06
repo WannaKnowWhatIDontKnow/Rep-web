@@ -6,13 +6,13 @@ import {
   Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell 
 } from 'recharts';
 import './Statistics.css';
-import { Rep } from '../../types';
+import { Rep } from '../../types/index';
 
 // 색상 팔레트 정의
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 interface StatisticsProps {
-  setActiveTab: (tab: string) => void;
+  setActiveTab: (tab: 'daily' | 'dashboard') => void;
 }
 
 interface ChartData {
@@ -98,8 +98,8 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
           const savedReps = localStorage.getItem('repList');
           if (savedReps) {
             const allReps = JSON.parse(savedReps);
-            data = allReps.filter(rep => {
-              const completionDate = rep.completedAt || rep.completed_at;
+            data = allReps.filter((rep: Rep) => {
+              const completionDate = rep.completed_at;
               if (!completionDate) return false;
               const repDate = new Date(completionDate);
               return repDate >= startDate;

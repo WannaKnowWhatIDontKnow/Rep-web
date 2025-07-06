@@ -6,7 +6,7 @@ import { Rep } from '../types';
 
 interface DashboardProps {
   reps: Rep[];
-  setActiveTab: (tab: string) => void;
+  setActiveTab: (tab: 'daily' | 'dashboard') => void;
 }
 
 interface TimeFormat {
