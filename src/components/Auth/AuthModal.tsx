@@ -10,7 +10,7 @@ interface AuthModalProps {
   onClose: () => void;
 }
 
-function AuthModal({ isOpen, onClose }: AuthModalProps): JSX.Element {
+function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [mode, setMode] = useState<'login' | 'signup'>('login'); // 'login' 또는 'signup'
 
   const toggleMode = (): void => {

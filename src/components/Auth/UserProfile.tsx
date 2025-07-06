@@ -2,7 +2,7 @@ import React from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import './Auth.css';
 
-function UserProfile(): JSX.Element | null {
+function UserProfile() {
   const { user, signOut } = useAuth();
   
   const handleSignOut = async (): Promise<void> => {
