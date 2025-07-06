@@ -45,4 +45,44 @@ describe('RepCard 컴포넌트', () => {
     const progressBar = document.querySelector('.rep-card-progress-bar');
     expect(progressBar).toBeInTheDocument();
   });
+
+  test('notes 속성이 없는 Rep 객체를 전달했을 때도 카드가 정상적으로 렌더링됩니다', () => {
+    const mockRep: Rep = {
+      id: 3,
+      goal: '노트 없는 목표',
+      initial_seconds: 1200,
+      initialSeconds: 1200,
+      completed_at: null
+      // notes 속성 의도적으로 생략
+    };
+    
+    render(<RepCard rep={mockRep} onClick={() => {}} />);
+    
+    // 목표 텍스트가 화면에 표시되는지 확인
+    expect(screen.getByText('노트 없는 목표')).toBeInTheDocument();
+    
+    // 노트가 없어도 카드가 정상적으로 렌더링되는지 확인
+    const card = document.querySelector('.rep-card');
+    expect(card).toBeInTheDocument();
+  });
+
+  test('initialSeconds가 0일 때 프로그레스 바의 너비가 0%로 설정됩니다', () => {
+    const mockRep: Rep = {
+      id: 4,
+      goal: '0초 목표',
+      initial_seconds: 0,
+      initialSeconds: 0,
+      completed_at: null,
+      notes: '프로그레스 바 테스트'
+    };
+    
+    render(<RepCard rep={mockRep} onClick={() => {}} />);
+    
+    // 프로그레스 바 요소 찾기
+    const progressBar = document.querySelector('.rep-card-progress-bar');
+    expect(progressBar).toBeInTheDocument();
+    
+    // 프로그레스 바의 너비가 0%인지 확인
+    expect(progressBar).toHaveStyle('width: 0%');
+  });
 });

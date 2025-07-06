@@ -21,6 +21,8 @@
     "jsx": "react-jsx" // 최신 리액트의 JSX 변환 방식 사용
   },
   "include": [
-    "src" // 타입 검사를 수행할 폴더 지정 (src 폴더 전체)
+    "src", // 타입 검사를 수행할 폴더 지정 (src 폴더 전체)
+    "cypress", // Cypress 테스트 파일도 타입 검사에 포함
+    "cypress.config.ts" // Cypress 구성 파일도 포함
   ]
 }
