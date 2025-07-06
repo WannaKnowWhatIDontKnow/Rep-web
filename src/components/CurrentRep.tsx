@@ -1,15 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import './CurrentRep.css';
+import { Rep } from '../types';
 
-function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, onDeleteRequest, defaultMinutes = 15, onInterrupt }) {
-  const [goal, setGoal] = useState('');
-  const [minutes, setMinutes] = useState(defaultMinutes); // 마지막으로 성공한 렙의 타이머 길이를 기본값으로 사용
-  const [showForm, setShowForm] = useState(false);
-  const [charCount, setCharCount] = useState(0); // 글자수 카운트 상태 추가
+interface CurrentRepProps {
+  rep: Rep | null;
+  remainingSeconds?: number;
+  isPaused?: boolean;
+  onTogglePause?: () => void;
+  onStart: (goal: string, minutes: number) => void;
+  onDeleteRequest?: () => void;
+  defaultMinutes?: number;
+  onInterrupt?: () => void;
+}
+
+const CurrentRep: React.FC<CurrentRepProps> = ({ rep, remainingSeconds, isPaused, onTogglePause, onStart, onDeleteRequest, defaultMinutes = 15, onInterrupt }) => {
+  const [goal, setGoal] = useState<string>('');
+  const [minutes, setMinutes] = useState<number>(defaultMinutes); // 마지막으로 성공한 렙의 타이머 길이를 기본값으로 사용
+  const [showForm, setShowForm] = useState<boolean>(false);
+  const [charCount, setCharCount] = useState<number>(0); // 글자수 카운트 상태 추가
   
 
 
-  const formatTime = (totalSeconds) => {
+  const formatTime = (totalSeconds: number): string => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
@@ -24,7 +36,7 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
     }
   };
 
-  const handleSliderChange = (e) => {
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMinutes(Number(e.target.value));
   };
   
@@ -75,7 +87,7 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
             value={minutes}
             onChange={handleSliderChange}
             className="time-slider"
-            style={{'--fill-percent': `${sliderFillPercent}%`}}
+            style={{ '--fill-percent': `${sliderFillPercent}%` } as React.CSSProperties}
         />
         <div className="time-slider-labels">
             <span>1분</span>
@@ -107,10 +119,10 @@ function CurrentRep({ rep, remainingSeconds, isPaused, onTogglePause, onStart, o
         className="current-rep-area active"
       >
         <div className="rep-goal">
-          <span>{rep.goal}</span>
+          <span>{rep?.goal}</span>
         </div>
         <div className="rep-timer">
-          {formatTime(remainingSeconds)}
+          {remainingSeconds !== undefined ? formatTime(remainingSeconds) : '00:00'}
         </div>
         <div className="rep-controls">
           <button onClick={onTogglePause}>{isPaused ? '▶' : 'II'}</button>

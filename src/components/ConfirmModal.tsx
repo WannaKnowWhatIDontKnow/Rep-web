@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import BaseModal from './BaseModal';
 import './ConfirmModal.css';
 
-function ConfirmModal({ isOpen, onConfirm, onCancel, title = '확인', children }) {
+interface ConfirmModalProps {
+  isOpen: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+  title?: string;
+  children?: ReactNode;
+}
+
+const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, onConfirm, onCancel, title = '확인', children }) => {
   const footerContent = (
     <>
       <button className="confirm-button" onClick={onConfirm}>확인</button>

@@ -17,32 +17,33 @@ import UserProfile from './components/Auth/UserProfile';
 import ConfirmModal from './components/ConfirmModal'; // 확인 모달 컴포넌트 추가
 import RepDetailModal from './components/RepDetailModal'; // Rep 상세 정보 모달 컴포넌트 추가
 import { useReps } from './hooks/useReps'; // 새로운 커스텀 훅 추가
+import { Rep } from './types'; // Rep 타입 임포트
 
 // App component (the overall structure of our website) is defined here.
-function App() {
-  const [selectedDate, setSelectedDate] = useState(new Date()); // State for the selected date
-  const [currentRep, setCurrentRep] = useState(null);
-  const [isRetroModalOpen, setRetroModalOpen] = useState(false);
-  const [repToReview, setRepToReview] = useState(null);
-  const [isAuthModalOpen, setAuthModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('daily'); // 'daily' 또는 'dashboard'
-  const [showConfirmModal, setShowConfirmModal] = useState(false); // 확인 모달 표시 상태
-  const [selectedRep, setSelectedRep] = useState(null); // 선택된 Rep 상태 추가
-  const [isDetailModalOpen, setDetailModalOpen] = useState(false); // 상세 정보 모달 표시 상태 추가
-  const [repToDelete, setRepToDelete] = useState(null); // 삭제할 rep의 정보를 저장
-  const [isDeleteCurrentRepModalOpen, setDeleteCurrentRepModalOpen] = useState(false); // CurrentRep 삭제 확인 모달 상태
+function App(): React.ReactElement {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date()); // State for the selected date
+  const [currentRep, setCurrentRep] = useState<Rep | null>(null);
+  const [isRetroModalOpen, setRetroModalOpen] = useState<boolean>(false);
+  const [repToReview, setRepToReview] = useState<Rep | null>(null);
+  const [isAuthModalOpen, setAuthModalOpen] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<'daily' | 'dashboard'>('daily'); // 'daily' 또는 'dashboard'
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false); // 확인 모달 표시 상태
+  const [selectedRep, setSelectedRep] = useState<Rep | null>(null); // 선택된 Rep 상태 추가
+  const [isDetailModalOpen, setDetailModalOpen] = useState<boolean>(false); // 상세 정보 모달 표시 상태 추가
+  const [repToDelete, setRepToDelete] = useState<Rep | null>(null); // 삭제할 rep의 정보를 저장
+  const [isDeleteCurrentRepModalOpen, setDeleteCurrentRepModalOpen] = useState<boolean>(false); // CurrentRep 삭제 확인 모달 상태
 
   const { user, isAuthenticated } = useAuth();
-  const rightPanelRef = useRef(null);
-  const leftPanelRef = useRef(null);
+  const rightPanelRef = useRef<HTMLDivElement | null>(null);
+  const leftPanelRef = useRef<HTMLDivElement | null>(null);
   
   // useReps 훅 사용하여 렙 데이터 관리 (이제 인자 없이 호출)
   const { repList, loading, addRep, getFilteredReps, deleteRep } = useReps();
 
-  const [remainingSeconds, setRemainingSeconds] = useState(0);
-  const [isPaused, setIsPaused] = useState(true); // Start as paused
-  const [endTime, setEndTime] = useState(null); // State to store the target end time
-  const [lastSuccessfulRepMinutes, setLastSuccessfulRepMinutes] = useState(15); // 마지막으로 성공한 렙의 타이머 길이 (기본값 15분)
+  const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
+  const [isPaused, setIsPaused] = useState<boolean>(true); // Start as paused
+  const [endTime, setEndTime] = useState<number | null>(null); // State to store the target end time
+  const [lastSuccessfulRepMinutes, setLastSuccessfulRepMinutes] = useState<number>(15); // 마지막으로 성공한 렙의 타이머 길이 (기본값 15분)
 
   // useEffect에서 fetchReps 함수를 직접 호출하므로 여기서는 함수 정의를 제거합니다.
   // 이제 useReps 훅에서 fetchReps 함수를 가져와 사용합니다.
@@ -91,7 +92,7 @@ function App() {
     };
   }, [activeTab]); // activeTab이 변경되면 패널이 다시 렌더링되므로 의존성 유지
 
-  const isToday = (date) => {
+  const isToday = (date: Date): boolean => {
     const today = new Date();
     return date.getFullYear() === today.getFullYear() &&
            date.getMonth() === today.getMonth() &&
@@ -99,7 +100,7 @@ function App() {
   }
 
   // 마지막 성공 렙 시간 불러오기 함수
-  const fetchLastSuccessfulRepMinutes = async () => {
+  const fetchLastSuccessfulRepMinutes = async (): Promise<void> => {
     if (!isAuthenticated || !user) return;
     
     try {
@@ -125,7 +126,7 @@ function App() {
   };
   
   // 마지막 성공 렙 시간 저장 함수
-  const saveLastSuccessfulRepMinutes = async (minutes) => {
+  const saveLastSuccessfulRepMinutes = async (minutes: number): Promise<void> => {
     logger.info('마지막 성공 렙 시간 저장:', minutes);
     
     if (isAuthenticated && user) {
@@ -156,7 +157,7 @@ function App() {
   };
 
   // 새로운 Rep 시작 함수
-  const handleStartRep = (goal, minutes) => {
+  const handleStartRep = (goal: string, minutes: number): void => {
     // 렙 생성은 오늘 날짜에서만 가능
     if (!isToday(selectedDate)) {
       alert("렙 생성은 오늘 날짜에서만 가능합니다.");
@@ -165,10 +166,11 @@ function App() {
     
     const newInitialSeconds = minutes * 60; // 분을 초로 변환
     
-    const newRep = {
+    const newRep: Rep = {
       id: Date.now(),
       goal: goal,
-      initialSeconds: newInitialSeconds
+      initial_seconds: newInitialSeconds,
+      completed_at: null,
     };
     
     setCurrentRep(newRep);
@@ -177,14 +179,14 @@ function App() {
     setIsPaused(false);
   };
 
-  const handleCompleteRep = useCallback((completedRep, finalSeconds) => {
+  const handleCompleteRep = useCallback((completedRep: Rep, finalSeconds: number) => {
     logger.info('Rep 완료 처리. 회고 모달을 엽니다.');
     new Audio('/alert.mp3').play().catch(() => logger.warn('알림음 재생에 실패했습니다.'));
     
     // 🔥 중요: 이 라인을 다시 활성화합니다.
     setCurrentRep(null); 
     
-    const reviewRep = {
+    const reviewRep: Rep = {
       ...completedRep,
       finalSeconds: finalSeconds
     };
@@ -215,10 +217,10 @@ function App() {
     }
     
     // 실제 경과 시간 계산
-    const elapsedSeconds = currentRep.initialSeconds - remainingSeconds;
+    const elapsedSeconds = currentRep.initial_seconds - remainingSeconds;
     
     // 완료된 Rep 정보 설정
-    const completedRep = {
+    const completedRep: Rep = {
       ...currentRep,
       completed_at: new Date().toISOString()
     };
@@ -237,6 +239,12 @@ function App() {
     }
 
     const timerId = setInterval(() => {
+      // endTime이 null이 아닌지 확인
+      if (endTime === null) {
+        clearInterval(timerId);
+        return;
+      }
+      
       const newRemaining = Math.round((endTime - Date.now()) / 1000);
 
       if (newRemaining <= 0) {
@@ -245,14 +253,14 @@ function App() {
         setRemainingSeconds(0);
         
         // 완료된 Rep 정보 설정
-        const completedRep = {
+        const completedRep: Rep = {
           ...currentRep,
           completed_at: new Date().toISOString()
         };
         
         // 타이머 종료 후 즉시 모달 표시
         // 타이머가 정상적으로 종료된 경우 초기 설정 시간 그대로 전달
-        handleCompleteRep(completedRep, currentRep.initialSeconds);
+        handleCompleteRep(completedRep, currentRep.initial_seconds);
       } else {
         setRemainingSeconds(newRemaining);
       }
@@ -281,7 +289,7 @@ function App() {
   };
   
   // 기존 함수 - 상세 모달에서 삭제 요청 시 사용
-  const handleDeleteRep = (rep) => {
+  const handleDeleteRep = (rep: Rep) => {
     // Rep 상세 모달에서 삭제 요청 시
     setRepToDelete(rep);
   };
@@ -289,7 +297,7 @@ function App() {
   // 이전 handleDropRep 함수는 삭제 - handleEarlyCompleteRep로 대체됨
   // 이제 모든 데이터 로딩은 useReps 훅이 책임짐
 
-  const handleTogglePause = () => {
+  const handleTogglePause = (): void => {
     setIsPaused(prevIsPaused => {
       const nowPaused = !prevIsPaused;
       if (!nowPaused) {
@@ -300,31 +308,6 @@ function App() {
     });
   };
 
-  const handleRetroSubmit = async (notes) => {
-    if (!repToReview) {
-      logger.error('회고 제출 시 repToReview가 없습니다.');
-      // 사용자가 모달 외부를 클릭하거나 X를 눌러 닫는 경우, notes가 없을 수 있습니다.
-      // 이 경우엔 그냥 모달만 닫고 아무것도 하지 않습니다.
-      setRetroModalOpen(false);
-      setRepToReview(null);
-      setCurrentRep(null); // 어떤 경우든 CurrentRep는 비워줍니다.
-      return;
-    }
-
-    logger.info('회고 제출. 리스트에 Rep 추가 및 CurrentRep 초기화.');
-
-    const completedRepData = {
-      ...repToReview,
-      notes: notes,
-    };
-
-    // 1. 실제 데이터 리스트에 Rep 추가 (즉시 실행)
-    await addRep(completedRepData);
-
-    // 2. CurrentRep 영역을 비움 (즉시 실행)
-    setCurrentRep(null);
-    
-    // 3. 오늘 날짜로 뷰 전환
     setSelectedDate(new Date());
 
     // 4. 모달 닫기 및 임시 상태 초기화
@@ -333,43 +316,43 @@ function App() {
   };
 
   // 선택된 날짜에 해당하는 렙만 필터링 (useReps 훅의 getFilteredReps 함수 사용)
-  const filteredReps = getFilteredReps(selectedDate);
+  const filteredReps = getFilteredReps ? getFilteredReps(selectedDate) : [];
 
   // 최신 10개의 Rep만 선택합니다.
   const latestTenReps = filteredReps.slice(0, 10);
 
   // 로그인/회원가입 모달 열기
-  const handleOpenAuthModal = () => {
-    setAuthModalOpen(true);
+  const handleOpenAuthModal = (): void => {
+    setIsAuthModalOpen(true);
   };
   
   // 로그인/회원가입 모달 닫기
-  const handleCloseAuthModal = () => {
-    setAuthModalOpen(false);
+  const handleCloseAuthModal = (): void => {
+    setIsAuthModalOpen(false);
   };
   
   // Rep 카드 클릭 시 실행될 함수
-  const handleRepCardClick = (rep) => {
+  const handleRepCardClick = (rep: Rep): void => {
     setSelectedRep(rep);
-    setDetailModalOpen(true);
+    setIsDetailModalOpen(true);
   };
   
   // 상세 모달에서 '삭제' 버튼 클릭 시 호출될 함수
-  const handleDeleteRequest = (rep) => {
+  const handleDeleteRequest = (rep: Rep): void => {
     if (!rep) return;
     setRepToDelete(rep); // 삭제할 Rep 정보 저장
-    setDetailModalOpen(false); // 상세 정보 모달은 닫음
+    setIsDetailModalOpen(false); // 상세 정보 모달은 닫음
   };
 
   // 최종 확인 모달에서 '확인' 클릭 시 호출될 함수
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = async (): Promise<void> => {
     if (!repToDelete) return;
     await deleteRep(repToDelete.id);
     setRepToDelete(null); // 삭제 프로세스 종료 및 초기화
   };
 
   // 최종 확인 모달 '취소' 클릭 시
-  const handleCancelDelete = () => {
+  const handleCancelDelete = (): void => {
     setRepToDelete(null); // 삭제 프로세스 취소
   };
 

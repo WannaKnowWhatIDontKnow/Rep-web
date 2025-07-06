@@ -1,11 +1,18 @@
-// src/components/RetrospectiveModal.js
+// src/components/RetrospectiveModal.tsx
 import React, { useState, useEffect } from 'react';
 import BaseModal from './BaseModal';
 import './RetrospectiveModal.css';
 // 1. 아이콘 임포트
 import { FaFeatherAlt } from 'react-icons/fa';
+import { Rep } from '../types';
 
-function RetrospectiveModal({ isOpen, onSubmit, repToReview }) {
+interface RetrospectiveModalProps {
+  isOpen: boolean;
+  onSubmit: (notes: string) => void;
+  repToReview?: Rep | null;
+}
+
+const RetrospectiveModal: React.FC<RetrospectiveModalProps> = ({ isOpen, onSubmit, repToReview }) => {
   const [notes, setNotes] = useState('');
 
   // 모달이 열릴 때, 이전 rep의 노트를 불러올 수 있도록 처리 (선택사항)
@@ -57,7 +64,7 @@ function RetrospectiveModal({ isOpen, onSubmit, repToReview }) {
               onChange={(e) => setNotes(e.target.value)}
               // 4. 플레이스홀더 텍스트 변경
               placeholder="다음 Rep을 위해 간단한 메모를 남겨보세요. (선택사항)"
-              rows="4"
+              rows={4}
             />
           </div>
         </div>

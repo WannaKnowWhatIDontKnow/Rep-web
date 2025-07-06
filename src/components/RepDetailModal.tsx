@@ -1,19 +1,27 @@
-// src/components/RepDetailModal.js
+// src/components/RepDetailModal.tsx
 import React from 'react';
 import BaseModal from './BaseModal';
 import './RepDetailModal.css';
 // 아이콘 임포트
 import { FaRegStickyNote, FaRegClock, FaStopwatch, FaTrashAlt } from 'react-icons/fa';
+import { Rep } from '../types';
+
+interface RepDetailModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  rep: Rep | null;
+  onDeleteRequest?: (rep: Rep) => void;
+}
 
 // '종료 시간' 포맷팅 함수
-const formatCompletionTime = (isoString) => {
+const formatCompletionTime = (isoString: string | undefined): string => {
   if (!isoString) return 'N/A';
   const date = new Date(isoString);
   return date.toLocaleString('ko-KR', { year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
 };
 
 // '총 진행 시간' 포맷팅 함수
-const formatDuration = (totalSeconds) => {
+const formatDuration = (totalSeconds: number | undefined): string => {
   if (typeof totalSeconds !== 'number' || isNaN(totalSeconds)) return 'N/A';
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -24,7 +32,7 @@ const formatDuration = (totalSeconds) => {
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 };
 
-function RepDetailModal({ isOpen, onClose, rep, onDeleteRequest }) {
+const RepDetailModal: React.FC<RepDetailModalProps> = ({ isOpen, onClose, rep, onDeleteRequest }) => {
   if (!isOpen || !rep) return null;
   
   const footerContent = (

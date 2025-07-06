@@ -1,22 +1,33 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import supabase from '../supabaseClient';
+import { User } from '../types'; // User 타입 임포트
+
+// Context가 가지게 될 값들의 타입 정의
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  signUp: (email: string, password: string) => Promise<{ success: boolean; error?: string; data?: any }>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string; data?: any }>;
+  signOut: () => Promise<{ success: boolean; error?: string }>;
+  isAuthenticated: boolean;
+}
 
 // 인증 정보를 관리하는 컨텍스트를 생성합니다
-const AuthContext = createContext();
+const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 // 이 컴포넌트는 앱 전체를 감싸서 모든 곳에서 인증 정보에 접근할 수 있게 합니다
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   // 세션 갱신 함수 추가
-  const refreshSession = async () => {
+  const refreshSession = async (): Promise<User | null> => {
     try {
           // 먼저 현재 세션이 유효한지 확인
       const { data: { session: currentSession }, error: currentSessionError } = await supabase.auth.getSession();
       
       // 세션이 있고 만료되지 않았다면 그대로 사용
-      if (currentSession && new Date(currentSession.expires_at * 1000) > new Date()) {
+      if (currentSession && currentSession.expires_at && new Date(currentSession.expires_at * 1000) > new Date()) {
         console.log('현재 세션이 유효함, 새로고침 스킵');
         setUser(currentSession.user);
         return currentSession.user;
@@ -33,7 +44,7 @@ export function AuthProvider({ children }) {
       }
       
       if (data && data.session) {
-        console.log('세션 새로고침 성공, 유효기간:', new Date(data.session.expires_at * 1000));
+        console.log('세션 새로고침 성공, 유효기간:', data.session.expires_at ? new Date(data.session.expires_at * 1000) : 'unknown');
         setUser(data.session.user);
         return data.session.user;
       } else {
@@ -41,7 +52,7 @@ export function AuthProvider({ children }) {
         setUser(null);
         return null;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('세션 갱신 중 예외 발생:', error);
       setUser(null);
       return null;
@@ -50,10 +61,10 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     // 현재 로그인된 사용자 정보를 확인합니다
-    const checkUser = async () => {
+    const checkUser = async (): Promise<void> => {
       try {
         await refreshSession();
-      } catch (error) {
+      } catch (error: any) {
         console.error('사용자 세션 확인 중 오류:', error);
         setUser(null);
       } finally {
@@ -89,18 +100,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   // 회원가입 함수
-  const signUp = async (email, password) => {
+  const signUp = async (email: string, password: string): Promise<{ success: boolean; error?: string; data?: any }> => {
     try {
       const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
       return { success: true, data };
-    } catch (error) {
+    } catch (error: any) {
       return { success: false, error: error.message };
     }
   };
 
   // 로그인 함수
-  const signIn = async (email, password) => {
+  const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string; data?: any }> => {
     try {
       console.log('로그인 시도:', email);
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -125,19 +136,19 @@ export function AuthProvider({ children }) {
       }
       
       return { success: true, data };
-    } catch (error) {
+    } catch (error: any) {
       console.error('로그인 예외 발생:', error);
       return { success: false, error: error.message };
     }
   };
 
   // 로그아웃 함수
-  const signOut = async () => {
+  const signOut = async (): Promise<{ success: boolean; error?: string }> => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
       return { success: false, error: error.message };
     }
   };

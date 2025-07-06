@@ -6,19 +6,35 @@ import {
   Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell 
 } from 'recharts';
 import './Statistics.css';
+import { Rep } from '../../types';
 
 // 색상 팔레트 정의
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-function Statistics({ setActiveTab }) {
-  const [timeRange, setTimeRange] = useState('week'); // 'week', 'month', 'year'
-  const [repData, setRepData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+interface StatisticsProps {
+  setActiveTab: (tab: string) => void;
+}
+
+interface ChartData {
+  name: string;
+  totalReps: number;
+  totalTime: number;
+}
+
+interface Totals {
+  totalReps: number;
+  totalTime: string;
+}
+
+const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('week');
+  const [repData, setRepData] = useState<ChartData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
 
   // 날짜 관련 함수들
-  const getStartDate = () => {
+  const getStartDate = (): Date => {
     const now = new Date();
     const startDate = new Date();
     
@@ -37,23 +53,25 @@ function Statistics({ setActiveTab }) {
   };
 
   // 날짜 포맷팅 함수
-  const formatDate = (date) => {
+  const formatDate = (date: Date): string => {
+    let result = '';
     if (timeRange === 'week') {
       // 요일 표시
       const days = ['일', '월', '화', '수', '목', '금', '토'];
-      return days[date.getDay()];
+      result = days[date.getDay()];
     } else if (timeRange === 'month') {
       // 일 표시
-      return `${date.getDate()}일`;
+      result = `${date.getDate()}일`;
     } else if (timeRange === 'year') {
       // 월 표시
-      return `${date.getMonth() + 1}월`;
+      result = `${date.getMonth() + 1}월`;
     }
+    return result;
   };
 
   // 데이터 가져오기
   useEffect(() => {
-    async function fetchData() {
+    async function fetchData(): Promise<void> {
       setLoading(true);
       setError(null);
       
@@ -66,7 +84,7 @@ function Statistics({ setActiveTab }) {
           const { data: repData, error } = await supabase
             .from('reps')
             .select('*')
-            .eq('user_id', user.id)
+            .eq('user_id', user?.id || '')
             .gte('completed_at', startDate.toISOString())
             .order('completed_at', { ascending: true });
             
@@ -104,9 +122,9 @@ function Statistics({ setActiveTab }) {
   }, [timeRange, isAuthenticated, user]);
 
   // 데이터 처리 및 그룹화 함수
-  const processData = (data) => {
+  const processData = (data: Rep[]): ChartData[] => {
     // 시간 범위에 따라 데이터 그룹화
-    const groupedData = {};
+    const groupedData: Record<string, ChartData> = {};
     const now = new Date();
     
     // 빈 데이터 초기화 (모든 날짜/월에 대한 기본 데이터 생성)
@@ -148,9 +166,9 @@ function Statistics({ setActiveTab }) {
       }
     }
     
-    // 실제 데이터로 채우기
-    data.forEach(rep => {
-      const completionDate = rep.completedAt || rep.completed_at;
+    // 데이터 그룹화
+    data.forEach((rep: Rep) => {
+      const completionDate = rep.completed_at;
       if (!completionDate) return;
       
       const repDate = new Date(completionDate);
@@ -158,9 +176,7 @@ function Statistics({ setActiveTab }) {
       
       if (groupedData[key]) {
         groupedData[key].totalReps += 1;
-        // 시간 계산 시 NaN 처리 및 데이터 형식 불일치 해결
-        const seconds = rep.initial_seconds || rep.initialSeconds;
-        groupedData[key].totalTime += (typeof seconds === 'number' && !isNaN(seconds) ? seconds : 0);
+        groupedData[key].totalTime += rep.initial_seconds || 0;
       }
     });
     
@@ -169,14 +185,14 @@ function Statistics({ setActiveTab }) {
   };
 
   // 시간 형식 변환 (초 -> 분:초)
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
   // 총계 계산
-  const calculateTotals = () => {
+  const calculateTotals = (): Totals => {
     let totalReps = 0;
     let totalTime = 0;
     

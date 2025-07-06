@@ -2,11 +2,22 @@ import React from 'react';
 import './Dashboard.css';
 import { IoTimeOutline, IoRepeat, IoBarChartSharp, IoLockClosedOutline } from 'react-icons/io5';
 import { useAuth } from '../contexts/AuthContext';
+import { Rep } from '../types';
+
+interface DashboardProps {
+  reps: Rep[];
+  setActiveTab: (tab: string) => void;
+}
+
+interface TimeFormat {
+  value: string;
+  unit: string;
+}
 
 
 
 // Function to format time as MM:SS or HH:MM:SS and return both value and unit
-const formatTime = (totalSeconds, forceHours = false) => {
+const formatTime = (totalSeconds: number, forceHours = false): TimeFormat => {
     // Floor the total seconds to remove decimal points
     const safeTotalSeconds = Math.floor(totalSeconds);
     
@@ -36,7 +47,7 @@ const formatTime = (totalSeconds, forceHours = false) => {
     };
 };
 
-function Dashboard({ reps, setActiveTab }) {
+const Dashboard: React.FC<DashboardProps> = ({ reps, setActiveTab }) => {
   const totalReps = reps.length;
   
   // Handle NaN and data format inconsistencies when calculating time

@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import supabase from '../supabaseClient';
 import { useAuth } from '../contexts/AuthContext';
 import logger from '../utils/logger'; // logger 임포트
+import { Rep } from '../types'; // Rep 타입 임포트
 
 export function useReps() {
   const { user, isAuthenticated } = useAuth();
-  const [repList, setRepList] = useState([]);
+  const [repList, setRepList] = useState<Rep[]>([]);
   const [loading, setLoading] = useState(true);
 
   // 1. 데이터 로딩 로직 (user 객체가 변경될 때만 실행)
@@ -13,7 +14,7 @@ export function useReps() {
     // 이 함수는 user 상태가 확정된 후에만 호출된다.
     const loadReps = async () => {
       setLoading(true);
-      let rawData = [];
+      let rawData: any[] = [];
 
       try {
         if (user && isAuthenticated) {
@@ -40,7 +41,7 @@ export function useReps() {
 
       // 🔥 핵심: 데이터 정제 파이프라인
       // 어떤 데이터가 들어오든 항상 일관된 형식으로 변환한다.
-      const normalizedData = rawData.map(rep => {
+      const normalizedData: Rep[] = rawData.map(rep => {
         const seconds = rep.initialSeconds ?? rep.initial_seconds ?? 0; // 1순위 initialSeconds, 2순위 initial_seconds, 없으면 0
         return {
           ...rep,
@@ -66,7 +67,7 @@ export function useReps() {
   }, [repList, isAuthenticated, loading]); // repList가 바뀔 때마다 저장 시도
 
   // 렛 추가 함수 (App.js에서 사용)
-  const addRep = async (completedRepData) => {
+  const addRep = async (completedRepData: Omit<Rep, 'id' | 'user_id'>) => {
     // 1. 전달받은 데이터에서 '초' 값을 안전하게 추출
     const seconds = completedRepData.finalSeconds ?? completedRepData.initialSeconds ?? completedRepData.initial_seconds ?? 0;
 
@@ -102,7 +103,7 @@ export function useReps() {
     }
   };
 
-  const getFilteredReps = (selectedDate) => {
+  const getFilteredReps = (selectedDate: Date): Rep[] => {
     return repList.filter(rep => {
       if (!rep.completed_at) return false;
       const repDate = new Date(rep.completed_at);
@@ -113,7 +114,7 @@ export function useReps() {
   };
 
   // Rep 삭제 함수
-  const deleteRep = async (repId) => {
+  const deleteRep = async (repId: Rep['id']) => {
     if (!repId) {
       logger.error('삭제할 Rep의 ID가 없습니다.');
       return;
@@ -137,7 +138,7 @@ export function useReps() {
       // 공통 로직: 화면(state)에서 해당 Rep 제거
       setRepList(currentList => currentList.filter(rep => rep.id !== repId));
 
-    } catch (error) {
+    } catch (error: any) {
       logger.error('Rep 삭제 중 에러 발생:', error);
     }
   };

@@ -3,8 +3,14 @@ import { motion } from 'framer-motion'; // Framer Motion 임포트 확인
 import RepCard from './RepCard';
 import './RepList.css';
 import logger from '../utils/logger'; // logger 임포트
+import { Rep } from '../types'; // 타입 임포트
 
-function RepList({ reps, onRepCardClick }) {
+interface RepListProps {
+  reps: Rep[];
+  onRepCardClick: (rep: Rep) => void;
+}
+
+const RepList: React.FC<RepListProps> = ({ reps, onRepCardClick }) => {
   // 리스트 영역 클래스 이름
   const listClassName = 'list-area';
   

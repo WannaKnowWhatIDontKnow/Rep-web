@@ -1,9 +1,16 @@
-// src/components/BaseModal.js
-import React from 'react';
-import PropTypes from 'prop-types';
+// src/components/BaseModal.tsx
+import React, { ReactNode } from 'react';
 import './BaseModal.css';
 
-function BaseModal({ isOpen, onClose, title, children, footer }) {
+interface BaseModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string;
+  children: ReactNode;
+  footer?: ReactNode;
+}
+
+const BaseModal: React.FC<BaseModalProps> = ({ isOpen, onClose, title = '', children, footer }) => {
   if (!isOpen) return null;
 
   return (
@@ -28,16 +35,7 @@ function BaseModal({ isOpen, onClose, title, children, footer }) {
   );
 }
 
-BaseModal.propTypes = {
-  isOpen: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
-  title: PropTypes.string,
-  children: PropTypes.node.isRequired,
-  footer: PropTypes.node,
-};
-
-BaseModal.defaultProps = {
-    title: ''
-}
+// PropTypes는 TypeScript로 대체되었습니다.
+// defaultProps 대신 함수 매개변수에 기본값을 지정했습니다.
 
 export default BaseModal;
