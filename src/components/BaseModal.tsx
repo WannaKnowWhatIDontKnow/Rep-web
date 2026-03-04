@@ -14,7 +14,7 @@ const BaseModal: React.FC<BaseModalProps> = ({ isOpen, onClose, title = '', chil
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className="modal-overlay">
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         {title && (
           <div className="modal-header">
