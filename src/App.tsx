@@ -148,6 +148,7 @@ function App(): React.ReactElement {
       ...currentRep,
       completed_at: new Date().toISOString()
     };
+    new Audio('/alert.mp3').play().catch(e => console.error('Audio error:', e));
     setShowConfirmModal(false);
     handleCompleteRep(completedRep, elapsedSeconds);
   };
@@ -166,6 +167,8 @@ function App(): React.ReactElement {
       if (newRemaining <= 0) {
         clearInterval(timerId);
         setRemainingSeconds(0);
+        console.log('Timer ended - attempting sound');
+        new Audio('/alert.mp3').play().catch(e => console.error('Audio error:', e));
         const completedRep: Rep = { ...currentRep, completed_at: new Date().toISOString() };
         handleCompleteRep(completedRep, currentRep.initial_seconds);
       } else {
