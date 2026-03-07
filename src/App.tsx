@@ -214,6 +214,14 @@ function App(): React.ReactElement {
 
   const filteredReps = getFilteredReps(selectedDate);
 
+  const repDates: Record<string, number> = {};
+  repList.forEach(rep => {
+    if (!rep.completed_at) return;
+    const d = new Date(rep.completed_at);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    repDates[key] = (repDates[key] || 0) + Math.floor((rep.initial_seconds || 0) / 60);
+  });
+
   const handleOpenAuthModal = (): void => setAuthModalOpen(true);
   const handleCloseAuthModal = (): void => setAuthModalOpen(false);
   const handleRepCardClick = (rep: Rep): void => { setSelectedRep(rep); setDetailModalOpen(true); };
@@ -224,7 +232,7 @@ function App(): React.ReactElement {
   return (
     <div className="app-container">
       <div className="app-header">
-        <h1>Rep</h1>
+        <h1 onClick={() => setActiveTab('daily')} style={{ cursor: 'pointer' }}>Rep</h1>
         <div className="auth-section">
           {isAuthenticated ? <UserProfile /> : <button onClick={handleOpenAuthModal} className="header-auth-button">로그인</button>}
         </div>
@@ -233,7 +241,7 @@ function App(): React.ReactElement {
       {activeTab === 'daily' ? (
         <div className="main-content">
           <div className="left-panel" ref={leftPanelRef}>
-            <ErrorBoundary><CalendarSection selectedDate={selectedDate} setSelectedDate={setSelectedDate} /></ErrorBoundary>
+            <ErrorBoundary><CalendarSection selectedDate={selectedDate} setSelectedDate={setSelectedDate} repDates={repDates} /></ErrorBoundary>
             <ErrorBoundary><RepList reps={filteredReps} onRepCardClick={handleRepCardClick} /></ErrorBoundary>
           </div>
           <div className="right-panel" ref={rightPanelRef}>

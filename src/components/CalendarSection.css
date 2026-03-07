@@ -181,6 +181,37 @@
     display: none;
 }
 
+/* Heatmap dots */
+.rep-day-low,
+.rep-day-medium,
+.rep-day-high {
+    position: relative;
+}
+
+.rep-day-low::after,
+.rep-day-medium::after,
+.rep-day-high::after {
+    content: '';
+    position: absolute;
+    bottom: 3px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+}
+
+.rep-day-low::after    { background-color: #c5c2ff; }
+.rep-day-medium::after { background-color: #9d96ff; }
+.rep-day-high::after   { background-color: #6E66FF; }
+
+/* White dot on selected/today purple background */
+.react-datepicker__day--selected.rep-day-low::after,
+.react-datepicker__day--selected.rep-day-medium::after,
+.react-datepicker__day--selected.rep-day-high::after {
+    background-color: rgba(255, 255, 255, 0.75);
+}
+
 /* 외부 날짜 숨기기 */
 .react-datepicker__day--outside-month {
     visibility: hidden;

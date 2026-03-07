@@ -25,22 +25,26 @@ interface Totals {
 
 const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('week');
+  const [chartMetric, setChartMetric] = useState<'time' | 'reps'>('time');
   const [repData, setRepData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
 
+  // Returns the start of the current period (Monday / 1st of month / Jan 1st)
   const getStartDate = (): Date => {
     const now = new Date();
-    const startDate = new Date();
     if (timeRange === 'week') {
-      startDate.setDate(now.getDate() - 7);
+      const monday = new Date(now);
+      const day = now.getDay();
+      monday.setDate(now.getDate() + (day === 0 ? -6 : 1 - day));
+      monday.setHours(0, 0, 0, 0);
+      return monday;
     } else if (timeRange === 'month') {
-      startDate.setMonth(now.getMonth() - 1);
-    } else if (timeRange === 'year') {
-      startDate.setFullYear(now.getFullYear() - 1);
+      return new Date(now.getFullYear(), now.getMonth(), 1);
+    } else {
+      return new Date(now.getFullYear(), 0, 1);
     }
-    return startDate;
   };
 
   const formatDate = (date: Date): string => {
@@ -75,9 +79,8 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
           if (savedReps) {
             const allReps = JSON.parse(savedReps);
             data = allReps.filter((rep: Rep) => {
-              const completionDate = rep.completed_at;
-              if (!completionDate) return false;
-              return new Date(completionDate) >= startDate;
+              if (!rep.completed_at) return false;
+              return new Date(rep.completed_at) >= startDate;
             });
           }
         }
@@ -97,23 +100,29 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
     const now = new Date();
 
     if (timeRange === 'week') {
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(now.getDate() - i);
+      // Monday to Sunday of current week
+      const monday = new Date(now);
+      const day = now.getDay();
+      monday.setDate(now.getDate() + (day === 0 ? -6 : 1 - day));
+      monday.setHours(0, 0, 0, 0);
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(monday);
+        date.setDate(monday.getDate() + i);
         const key = formatDate(date);
         groupedData[key] = { name: key, totalReps: 0, totalTime: 0 };
       }
     } else if (timeRange === 'month') {
-      for (let i = 29; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(now.getDate() - i);
+      // 1st to last day of current month
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      for (let i = 1; i <= daysInMonth; i++) {
+        const date = new Date(now.getFullYear(), now.getMonth(), i);
         const key = formatDate(date);
         groupedData[key] = { name: key, totalReps: 0, totalTime: 0 };
       }
     } else {
-      for (let i = 11; i >= 0; i--) {
-        const date = new Date();
-        date.setMonth(now.getMonth() - i);
+      // January to December of current year
+      for (let i = 0; i < 12; i++) {
+        const date = new Date(now.getFullYear(), i, 1);
         const key = formatDate(date);
         groupedData[key] = { name: key, totalReps: 0, totalTime: 0 };
       }
@@ -134,14 +143,23 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
   const calculateTotals = (): Totals => {
     let totalReps = 0;
     let totalSeconds = 0;
-    repData.forEach(data => {
-      totalReps += data.totalReps;
-      totalSeconds += data.totalTime;
+    repData.forEach(d => {
+      totalReps += d.totalReps;
+      totalSeconds += d.totalTime;
     });
     return { totalReps, totalTime: String(Math.floor(totalSeconds / 60)) };
   };
 
   const totals = calculateTotals();
+
+  // Transform data for chart display
+  const displayData = repData.map(d => ({
+    ...d,
+    displayValue: chartMetric === 'time' ? Math.floor(d.totalTime / 60) : d.totalReps,
+  }));
+
+  const barSize = timeRange === 'month' ? 7 : 22;
+  const xAxisInterval = timeRange === 'month' ? 4 : 0;
 
   return (
     <div className="statistics-container">
@@ -181,22 +199,29 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
           </div>
 
           <div className="chart-container">
-            <p className="chart-label">렙 횟수</p>
+            <div className="chart-header">
+              <p className="chart-label">{chartMetric === 'time' ? '시간 (분)' : '렙 횟수'}</p>
+              <div className="metric-toggle">
+                <button className={chartMetric === 'time' ? 'active' : ''} onClick={() => setChartMetric('time')}>분</button>
+                <button className={chartMetric === 'reps' ? 'active' : ''} onClick={() => setChartMetric('reps')}>렙</button>
+              </div>
+            </div>
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={repData} barSize={timeRange === 'month' ? 8 : 20}>
+              <BarChart data={displayData} barSize={barSize}>
                 <XAxis
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: '#868e96', fontSize: 12 }}
+                  interval={xAxisInterval}
                 />
                 <YAxis hide />
                 <Tooltip
                   cursor={{ fill: 'rgba(110, 102, 255, 0.06)' }}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-                  formatter={(value: number) => [value, '렙']}
+                  formatter={(value: number) => [value, chartMetric === 'time' ? '분' : '렙']}
                 />
-                <Bar dataKey="totalReps" fill="#6E66FF" name="렙" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="displayValue" fill="#6E66FF" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

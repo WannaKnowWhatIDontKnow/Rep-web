@@ -11,9 +11,21 @@ const formatDate = (date: Date): string => {
 interface CalendarSectionProps {
     selectedDate: Date;
     setSelectedDate: (date: Date) => void;
+    repDates?: Record<string, number>;
 }
 
-const CalendarSection: React.FC<CalendarSectionProps> = ({ selectedDate, setSelectedDate }) => {
+const CalendarSection: React.FC<CalendarSectionProps> = ({ selectedDate, setSelectedDate, repDates = {} }) => {
+
+    const toKey = (date: Date): string =>
+        `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+
+    const getDayClassName = (date: Date): string => {
+        const mins = repDates[toKey(date)] || 0;
+        if (mins < 10) return '';
+        if (mins < 30) return 'rep-day-low';
+        if (mins < 120) return 'rep-day-medium';
+        return 'rep-day-high';
+    };
 
     // DatePicker에 표시될 커스텀 버튼
     const CustomDateButton = React.forwardRef<HTMLButtonElement, { onClick?: () => void }>(({ onClick }, ref) => (
@@ -41,6 +53,7 @@ const CalendarSection: React.FC<CalendarSectionProps> = ({ selectedDate, setSele
                       }
                     }}
                     customInput={<CustomDateButton />}
+                    dayClassName={getDayClassName}
                     popperPlacement="bottom-end"
                 />
             </div>

@@ -108,11 +108,44 @@
   padding: 20px;
 }
 
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
 .chart-label {
   font-size: 13px;
   font-weight: 500;
   color: #868e96;
-  margin: 0 0 16px 0;
+  margin: 0;
+}
+
+.metric-toggle {
+  display: flex;
+  gap: 4px;
+  background-color: #ebebeb;
+  padding: 3px;
+  border-radius: 8px;
+}
+
+.metric-toggle button {
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #868e96;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.metric-toggle button.active {
+  background-color: white;
+  color: #6E66FF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* Auth required */
