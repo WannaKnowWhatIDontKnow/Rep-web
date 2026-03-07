@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import supabase from '../../supabaseClient';
-import { 
-  BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, 
-  Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell 
+import {
+  BarChart, Bar, XAxis, YAxis,
+  Tooltip, ResponsiveContainer
 } from 'recharts';
 import './Statistics.css';
 import { Rep } from '../../types/index';
-
-// 색상 팔레트 정의
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 interface StatisticsProps {
   setActiveTab: (tab: 'daily' | 'dashboard') => void;
@@ -33,83 +30,58 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
   const [error, setError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuth();
 
-  // 날짜 관련 함수들
   const getStartDate = (): Date => {
     const now = new Date();
     const startDate = new Date();
-    
     if (timeRange === 'week') {
-      // 일주일 전
       startDate.setDate(now.getDate() - 7);
     } else if (timeRange === 'month') {
-      // 한 달 전
       startDate.setMonth(now.getMonth() - 1);
     } else if (timeRange === 'year') {
-      // 일년 전
       startDate.setFullYear(now.getFullYear() - 1);
     }
-    
     return startDate;
   };
 
-  // 날짜 포맷팅 함수
   const formatDate = (date: Date): string => {
-    let result = '';
     if (timeRange === 'week') {
-      // 요일 표시
       const days = ['일', '월', '화', '수', '목', '금', '토'];
-      result = days[date.getDay()];
+      return days[date.getDay()];
     } else if (timeRange === 'month') {
-      // 일 표시
-      result = `${date.getDate()}일`;
-    } else if (timeRange === 'year') {
-      // 월 표시
-      result = `${date.getMonth() + 1}월`;
+      return `${date.getDate()}일`;
+    } else {
+      return `${date.getMonth() + 1}월`;
     }
-    return result;
   };
 
-  // 데이터 가져오기
   useEffect(() => {
     async function fetchData(): Promise<void> {
       setLoading(true);
       setError(null);
-      
       try {
         const startDate = getStartDate();
         let data = [];
-        
         if (isAuthenticated) {
-          // 로그인 상태: Supabase에서 데이터 가져오기
           const { data: repData, error } = await supabase
             .from('reps')
             .select('*')
             .eq('user_id', user?.id || '')
             .gte('completed_at', startDate.toISOString())
             .order('completed_at', { ascending: true });
-            
-          if (error) {
-            throw new Error('데이터를 가져오는 중 오류가 발생했습니다.');
-          }
-          
+          if (error) throw new Error('데이터를 가져오는 중 오류가 발생했습니다.');
           data = repData;
         } else {
-          // 비로그인 상태: localStorage에서 데이터 가져오기
           const savedReps = localStorage.getItem('repList');
           if (savedReps) {
             const allReps = JSON.parse(savedReps);
             data = allReps.filter((rep: Rep) => {
               const completionDate = rep.completed_at;
               if (!completionDate) return false;
-              const repDate = new Date(completionDate);
-              return repDate >= startDate;
+              return new Date(completionDate) >= startDate;
             });
           }
         }
-        
-        // 데이터 처리 및 그룹화
-        const processedData = processData(data);
-        setRepData(processedData);
+        setRepData(processData(data));
       } catch (err) {
         console.error('데이터 로딩 오류:', err);
         setError('데이터를 불러오는 중 오류가 발생했습니다.');
@@ -117,197 +89,116 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
         setLoading(false);
       }
     }
-    
     fetchData();
   }, [timeRange, isAuthenticated, user]);
 
-  // 데이터 처리 및 그룹화 함수
   const processData = (data: Rep[]): ChartData[] => {
-    // 시간 범위에 따라 데이터 그룹화
     const groupedData: Record<string, ChartData> = {};
     const now = new Date();
-    
-    // 빈 데이터 초기화 (모든 날짜/월에 대한 기본 데이터 생성)
+
     if (timeRange === 'week') {
-      // 일주일 데이터 초기화
       for (let i = 6; i >= 0; i--) {
         const date = new Date();
         date.setDate(now.getDate() - i);
         const key = formatDate(date);
-        groupedData[key] = { 
-          name: key, 
-          totalReps: 0, 
-          totalTime: 0
-        };
+        groupedData[key] = { name: key, totalReps: 0, totalTime: 0 };
       }
     } else if (timeRange === 'month') {
-      // 한 달 데이터 초기화
       for (let i = 29; i >= 0; i--) {
         const date = new Date();
         date.setDate(now.getDate() - i);
         const key = formatDate(date);
-        groupedData[key] = { 
-          name: key, 
-          totalReps: 0, 
-          totalTime: 0
-        };
+        groupedData[key] = { name: key, totalReps: 0, totalTime: 0 };
       }
-    } else if (timeRange === 'year') {
-      // 일년 데이터 초기화
+    } else {
       for (let i = 11; i >= 0; i--) {
         const date = new Date();
         date.setMonth(now.getMonth() - i);
         const key = formatDate(date);
-        groupedData[key] = { 
-          name: key, 
-          totalReps: 0, 
-          totalTime: 0
-        };
+        groupedData[key] = { name: key, totalReps: 0, totalTime: 0 };
       }
     }
-    
-    // 데이터 그룹화
+
     data.forEach((rep: Rep) => {
-      const completionDate = rep.completed_at;
-      if (!completionDate) return;
-      
-      const repDate = new Date(completionDate);
-      const key = formatDate(repDate);
-      
+      if (!rep.completed_at) return;
+      const key = formatDate(new Date(rep.completed_at));
       if (groupedData[key]) {
         groupedData[key].totalReps += 1;
         groupedData[key].totalTime += rep.initial_seconds || 0;
       }
     });
-    
-    // 객체를 배열로 변환
+
     return Object.values(groupedData);
   };
 
-  // 시간 형식 변환 (초 -> 분:초)
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-
-  // 총계 계산
   const calculateTotals = (): Totals => {
     let totalReps = 0;
-    let totalTime = 0;
-    
+    let totalSeconds = 0;
     repData.forEach(data => {
       totalReps += data.totalReps;
-      totalTime += data.totalTime;
+      totalSeconds += data.totalTime;
     });
-    
-    return {
-      totalReps,
-      totalTime: formatTime(totalTime)
-    };
+    return { totalReps, totalTime: String(Math.floor(totalSeconds / 60)) };
   };
 
   const totals = calculateTotals();
-  
+
   return (
     <div className="statistics-container">
       <div className="statistics-header">
-        <h2>대시보드</h2>
-        <div className="dashboard-actions">
-          <button 
-            className="back-to-daily" 
-            onClick={() => setActiveTab('daily')}
-          >
-            오늘 대시보드로 돌아가기
-          </button>
-        </div>
+        <button className="back-to-daily" onClick={() => setActiveTab('daily')}>
+          ← 돌아가기
+        </button>
         <div className="time-range-selector">
-          <button 
-            className={timeRange === 'week' ? 'active' : ''} 
-            onClick={() => setTimeRange('week')}
-          >
-            주간
-          </button>
-          <button 
-            className={timeRange === 'month' ? 'active' : ''} 
-            onClick={() => setTimeRange('month')}
-          >
-            월간
-          </button>
-          <button 
-            className={timeRange === 'year' ? 'active' : ''} 
-            onClick={() => setTimeRange('year')}
-          >
-            연간
-          </button>
+          <button className={timeRange === 'week' ? 'active' : ''} onClick={() => setTimeRange('week')}>주간</button>
+          <button className={timeRange === 'month' ? 'active' : ''} onClick={() => setTimeRange('month')}>월간</button>
+          <button className={timeRange === 'year' ? 'active' : ''} onClick={() => setTimeRange('year')}>연간</button>
         </div>
       </div>
-      
+
       {!isAuthenticated ? (
         <div className="auth-required-message">
-          <p>회원가입 시 주간/월간/연간 통계 데이터를 확인할 수 있습니다.</p>
-          <button 
-            className="auth-button" 
-            onClick={() => {
-              setActiveTab('daily');
-              // 여기에 로그인 모달을 열 수 있는 함수를 추가할 수 있음
-            }}
-          >
-            오늘 대시보드로 돌아가기
-          </button>
+          <p>로그인하면 통계 데이터를 확인할 수 있습니다.</p>
+          <button className="back-to-daily" onClick={() => setActiveTab('daily')}>돌아가기</button>
         </div>
       ) : loading ? (
-        <div className="loading">데이터를 불러오는 중...</div>
+        <div className="loading">불러오는 중...</div>
       ) : error ? (
         <div className="error">{error}</div>
       ) : (
         <>
           <div className="statistics-summary">
             <div className="summary-card">
-              <h3>총 렙 횟수</h3>
+              <p className="summary-label">총 렙</p>
               <p className="summary-value">{totals.totalReps}</p>
+              <p className="summary-unit">reps</p>
             </div>
             <div className="summary-card">
-              <h3>총 시간</h3>
+              <p className="summary-label">총 시간</p>
               <p className="summary-value">{totals.totalTime}</p>
+              <p className="summary-unit">min</p>
             </div>
           </div>
-          
-          <div className="statistics-charts">
-            <div className="chart-container">
-              <h3>렙 횟수</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={repData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="totalReps" fill="#8884d8" name="렙 횟수" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            
-            <div className="chart-container">
-              <h3>총 시간 (초)</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={repData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="totalTime" 
-                    stroke="#82ca9d" 
-                    name="총 시간 (초)" 
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-            
 
+          <div className="chart-container">
+            <p className="chart-label">렙 횟수</p>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={repData} barSize={timeRange === 'month' ? 8 : 20}>
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: '#868e96', fontSize: 12 }}
+                />
+                <YAxis hide />
+                <Tooltip
+                  cursor={{ fill: 'rgba(110, 102, 255, 0.06)' }}
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
+                  formatter={(value: number) => [value, '렙']}
+                />
+                <Bar dataKey="totalReps" fill="#6E66FF" name="렙" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </>
       )}
