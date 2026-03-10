@@ -36,6 +36,7 @@ function App(): React.ReactElement {
   const { user, isAuthenticated } = useAuth();
   const rightPanelRef = useRef<HTMLDivElement | null>(null);
   const leftPanelRef = useRef<HTMLDivElement | null>(null);
+  const lastTickRef = useRef<number>(Date.now());
   
   // useReps 훅 사용하여 렙 데이터 관리 (이제 인자 없이 호출)
   const { repList, loading, addRep, getFilteredReps, deleteRep } = useReps();
@@ -157,6 +158,14 @@ function App(): React.ReactElement {
     if (!currentRep || isPaused || endTime === null) return;
     const timerId = setInterval(() => {
       // endTime이 null이 아닌지 확인
+      const now = Date.now();
+      const gap = now - lastTickRef.current;
+      lastTickRef.current = now;
+      if (gap > 3000) {
+        setRemainingSeconds(Math.max(0, Math.round((endTime - now) / 1000)));
+        setIsPaused(true);
+        return;
+      }
       if (endTime === null) {
         clearInterval(timerId);
         return;
