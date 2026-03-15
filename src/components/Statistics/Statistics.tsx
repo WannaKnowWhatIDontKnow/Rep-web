@@ -212,7 +212,7 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: '#868e96', fontSize: 12 }}
+                  tick={{ fill: '#868e96', fontSize: 10 }}
                   interval={xAxisInterval}
                 />
                 <YAxis hide />
