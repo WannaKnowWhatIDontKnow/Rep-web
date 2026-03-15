@@ -62,6 +62,7 @@ const CurrentRep: React.FC<CurrentRepProps> = ({ rep, remainingSeconds, isPaused
         <input
           id="goal-input"
           type="text"
+          autoComplete="off"
           value={goal}
           onChange={(e) => {
             const newValue = e.target.value.slice(0, 30);
