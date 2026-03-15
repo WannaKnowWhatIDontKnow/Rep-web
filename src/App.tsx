@@ -36,7 +36,7 @@ function App(): React.ReactElement {
   const { user, isAuthenticated } = useAuth();
   const rightPanelRef = useRef<HTMLDivElement | null>(null);
   const leftPanelRef = useRef<HTMLDivElement | null>(null);
-  const lastTickRef = useRef<number>(Date.now());
+  // const lastTickRef = useRef<number>(Date.now());  // <- laptop-close detection feature. Doesn't work.
   
   // useReps 훅 사용하여 렙 데이터 관리 (이제 인자 없이 호출)
   const { repList, loading, addRep, getFilteredReps, deleteRep } = useReps();
@@ -158,6 +158,8 @@ function App(): React.ReactElement {
     if (!currentRep || isPaused || endTime === null) return;
     const timerId = setInterval(() => {
       // endTime이 null이 아닌지 확인
+
+      /* laptop-close detection feature. Doesn't work, so just deleted.
       const now = Date.now();
       const gap = now - lastTickRef.current;
       lastTickRef.current = now;
@@ -166,6 +168,8 @@ function App(): React.ReactElement {
         setIsPaused(true);
         return;
       }
+      */
+
       if (endTime === null) {
         clearInterval(timerId);
         return;
@@ -241,7 +245,7 @@ function App(): React.ReactElement {
   return (
     <div className="app-container">
       <div className="app-header">
-        <h1 onClick={() => setActiveTab('daily')} style={{ cursor: 'pointer' }}>Rep</h1>
+        <h1 onClick={() => setActiveTab('daily')} style={{ cursor: 'pointer' }}>Reps</h1>
         <div className="auth-section">
           {isAuthenticated ? <UserProfile /> : <button onClick={handleOpenAuthModal} className="header-auth-button">로그인</button>}
         </div>
