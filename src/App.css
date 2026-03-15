@@ -177,4 +177,11 @@ body {
   font-size: 1.2rem; /* 글자 크기를 키웁니다. */
 }
 
+@media (max-width: 768px) {
+  .main-content {
+    flex-direction: column;
+  }
+  .right-panel { order: 1; width: 100%; }
+  .left-panel  { order: 2; width: 100%; }
+}
 

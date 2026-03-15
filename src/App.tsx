@@ -89,6 +89,7 @@ function App(): React.ReactElement {
 
     if (!rightPanel || !leftPanel) return;
     const resizeObserver = new ResizeObserver(() => {
+      if (window.innerWidth <= 768) return; // skip on mobile
       const rightPanelHeight = rightPanel.offsetHeight;
       leftPanel.style.maxHeight = `${rightPanelHeight}px`;
     });

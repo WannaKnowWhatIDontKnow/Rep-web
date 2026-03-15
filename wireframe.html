@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rep – Layout Wireframe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #16213e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 40px;
+      gap: 14px;
+      min-height: 100vh;
+    }
+
+    /* ── Toolbar ── */
+    #toolbar {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #toolbar button {
+      padding: 7px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #btn-mobile  { background: #6E66FF; color: #fff; }
+    #btn-desktop { background: #555; color: #fff; }
+    #btn-reset   { background: #e55; color: #fff; }
+    #label-mode  { color: #888; font-size: 12px; }
+
+    #mobile-hint { font-size: 11px; color: #666; display: none; text-align: center; }
+
+    /* ── Frame ── */
+    #frame {
+      background: #f0f2f5;
+      border-radius: 20px;
+      overflow: hidden;
+      transition: width 0.3s ease;
+      box-shadow: 0 12px 50px rgba(0,0,0,0.6);
+    }
+    #frame.desktop { width: 900px; }
+    #frame.mobile  { width: 390px; }
+
+    /* ══════════════════════════════
+       SHARED COMPONENT STYLES
+       (copied from actual app CSS)
+    ══════════════════════════════ */
+
+    /* Header */
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 24px;
+      background: #f0f2f5;
+    }
+    .app-header h1 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 800;
+      font-size: 24px;
+      color: #6E66FF;
+      letter-spacing: -0.5px;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-email { font-size: 13px; color: #555; }
+    .logout-btn {
+      background: transparent;
+      color: #d32f2f;
+      border: 1px solid #d32f2f;
+      border-radius: 4px;
+      padding: 5px 11px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* Layout */
+    #layout-desktop {
+      display: flex;
+      gap: 16px;
+      padding: 0 16px 16px;
+    }
+    #col-left  { display: flex; flex-direction: column; gap: 16px; width: 30%; }
+    #col-right { display: flex; flex-direction: column; gap: 16px; width: 70%; }
+
+    #layout-mobile {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+      padding: 0 12px 20px;
+    }
+
+    /* Card base */
+    .card {
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    /* ── Calendar card ── */
+    .calendar-card {
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .calendar-card .date-display {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+    .date-select-btn {
+      background: transparent;
+      border: none;
+      color: #868e96;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 7px 11px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .date-select-btn:hover { background: #f4f2ff; color: #6E66FF; }
+
+    /* ── Rep List card ── */
+    .replist-card {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      flex-grow: 1;
+    }
+    .replist-card .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 12px;
+    }
+    .rep-card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: white;
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      padding: 11px 14px;
+      overflow: hidden;
+    }
+    .rep-color-tag {
+      width: 4px;
+      height: 22px;
+      background: #6E66FF;
+      border-radius: 2px;
+      margin-right: 11px;
+      flex-shrink: 0;
+    }
+    .rep-card-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-grow: 1;
+    }
+    .rep-card-goal { font-size: 14px; font-weight: 500; color: #333; }
+    .rep-card-time { font-size: 12px; color: #888; }
+    .rep-card-progress-bar-container {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 3px;
+      background: #f0f0f0;
+    }
+    .rep-card-progress-bar {
+      height: 100%;
+      background: #8c88ff;
+      border-radius: 0 2px 2px 0;
+    }
+
+    /* ── Current Rep card (active) ── */
+    .current-rep-card {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 210px;
+    }
+    .rep-goal {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      text-align: center;
+    }
+    .rep-timer {
+      font-size: 64px;
+      font-weight: bold;
+      color: #333;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    .rep-controls {
+      display: flex;
+      gap: 10px;
+      width: 80%;
+    }
+    .rep-controls button {
+      flex: 1;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 0;
+      font-size: 15px;
+      font-weight: 600;
+      color: white;
+      cursor: pointer;
+    }
+    .btn-pause    { background: #328DFF; }
+    .btn-interrupt{ background: #FFC107; }
+    .btn-delete   { background: #EA4335; }
+
+    /* ── Current Rep card (plus state) ── */
+    .current-rep-plus {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 210px;
+    }
+    .plus-icon {
+      width: 76px; height: 76px;
+      border-radius: 50%;
+      background: #6E66FF;
+      color: white;
+      font-size: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(110,102,255,0.3);
+    }
+
+    /* ── Dashboard card ── */
+    .dashboard-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .main-metric {
+      background: #f8f9fa;
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+    }
+    .metric-header {
+      font-size: 14px;
+      font-weight: 500;
+      color: #868e96;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .metric-value-large {
+      font-size: 44px;
+      font-weight: 600;
+      color: #343a40;
+      letter-spacing: 1px;
+    }
+    .metric-unit { font-size: 11px; color: #adb5bd; margin-top: 3px; letter-spacing: 0.5px; }
+    .sub-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .metric-card {
+      background: #f8f9fa;
+      border-radius: 16px;
+      padding: 18px;
+      text-align: center;
+    }
+    .metric-value-small { font-size: 30px; font-weight: 600; color: #495057; }
+    .stats-button {
+      width: 100%;
+      background: #6E66FF;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 0;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ══════════════════════════════
+       MOBILE DRAG + RESIZE
+    ══════════════════════════════ */
+    .m-block {
+      position: relative;
+      cursor: grab;
+      transition: box-shadow 0.15s, transform 0.1s;
+      border-radius: 24px;
+    }
+    .m-block:active { cursor: grabbing; }
+    .m-block.dragging { opacity: 0.45; transform: scale(0.97); }
+    .m-block.drag-over { box-shadow: 0 0 0 3px #6E66FF, 0 4px 12px rgba(110,102,255,0.25); }
+
+    /* resize handle on mobile blocks */
+    .m-resize-handle {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: ns-resize;
+      z-index: 10;
+    }
+    .m-resize-handle::before {
+      content: '⸻';
+      font-size: 11px;
+      color: #ccc;
+      letter-spacing: -2px;
+    }
+
+    /* drag grip in header of mobile cards */
+    .drag-grip {
+      position: absolute;
+      top: 10px; right: 14px;
+      font-size: 16px;
+      color: #ccc;
+      cursor: grab;
+      line-height: 1;
+      z-index: 5;
+    }
+
+    /* ── Desktop resize handle ── */
+    .d-resize-handle {
+      position: absolute;
+      bottom: 6px; right: 10px;
+      font-size: 10px;
+      color: #ccc;
+      cursor: ns-resize;
+      user-select: none;
+    }
+    .d-reset-btn {
+      position: absolute;
+      top: 8px; right: 10px;
+      font-size: 10px;
+      background: #eee;
+      border: none;
+      border-radius: 4px;
+      padding: 2px 7px;
+      cursor: pointer;
+      color: #555;
+      z-index: 5;
+    }
+    .d-reset-btn:hover { background: #ddd; }
+    .resizable { position: relative; }
+  </style>
+</head>
+<body>
+
+  <div id="toolbar">
+    <button id="btn-mobile">📱 Mobile</button>
+    <button id="btn-desktop">🖥 Desktop</button>
+    <button id="btn-reset">↩ Reset</button>
+    <span id="label-mode">Current: Desktop</span>
+  </div>
+  <p id="mobile-hint">↕ Drag to reorder &nbsp;·&nbsp; ↓ Drag bottom edge to resize</p>
+
+  <div id="frame" class="desktop">
+
+    <!-- ── HEADER ── -->
+    <div class="app-header">
+      <h1>Reps</h1>
+      <div class="header-right">
+        <span class="user-email">guitar9060@gmail.com</span>
+        <button class="logout-btn">로그아웃</button>
+      </div>
+    </div>
+
+    <!-- ════════════════ DESKTOP LAYOUT ════════════════ -->
+    <div id="layout-desktop">
+
+      <div id="col-left">
+        <!-- Calendar -->
+        <div class="card resizable" id="d-calendar" style="min-height:70px">
+          <button class="d-reset-btn" data-id="d-calendar" data-h="70">↩</button>
+          <div class="calendar-card">
+            <div class="date-display">March 15, 2026</div>
+            <button class="date-select-btn">📅 날짜 선택</button>
+          </div>
+          <div class="d-resize-handle">⠿ resize</div>
+        </div>
+
+        <!-- Rep List -->
+        <div class="card resizable" id="d-replist" style="min-height:240px; flex-grow:1">
+          <button class="d-reset-btn" data-id="d-replist" data-h="240">↩</button>
+          <div class="replist-card">
+            <div class="section-label">Today's reps</div>
+            <div class="rep-card">
+              <div class="rep-color-tag"></div>
+              <div class="rep-card-content">
+                <span class="rep-card-goal">Create Rep Logo</span>
+                <span class="rep-card-time">25:00</span>
+              </div>
+              <div class="rep-card-progress-bar-container"><div class="rep-card-progress-bar" style="width:100%"></div></div>
+            </div>
+            <div class="rep-card">
+              <div class="rep-color-tag"></div>
+              <div class="rep-card-content">
+                <span class="rep-card-goal">Set and make AI friendly</span>
+                <span class="rep-card-time">05:02</span>
+              </div>
+              <div class="rep-card-progress-bar-container"><div class="rep-card-progress-bar" style="width:33%"></div></div>
+            </div>
+            <div class="rep-card">
+              <div class="rep-color-tag"></div>
+              <div class="rep-card-content">
+                <span class="rep-card-goal">렙 웹버그 수정하기</span>
+                <span class="rep-card-time">14:51</span>
+              </div>
+              <div class="rep-card-progress-bar-container"><div class="rep-card-progress-bar" style="width:99%"></div></div>
+            </div>
+          </div>
+          <div class="d-resize-handle">⠿ resize</div>
+        </div>
+      </div>
+
+      <div id="col-right">
+        <!-- Current Rep (active) -->
+        <div class="card resizable" id="d-currentrep" style="min-height:210px">
+          <button class="d-reset-btn" data-id="d-currentrep" data-h="210">↩</button>
+          <div class="current-rep-card">
+            <div class="rep-goal">Figure out mobile development</div>
+            <div class="rep-timer">22:33</div>
+            <div class="rep-controls">
+              <button class="btn-pause">⏸</button>
+              <button class="btn-interrupt">중단</button>
+              <button class="btn-delete">Delete</button>
+            </div>
+          </div>
+          <div class="d-resize-handle">⠿ resize</div>
+        </div>
+
+        <!-- Dashboard -->
+        <div class="card resizable" id="d-dashboard" style="min-height:340px">
+          <button class="d-reset-btn" data-id="d-dashboard" data-h="340">↩</button>
+          <div class="dashboard-card">
+            <div class="main-metric">
+              <div class="metric-header">⏱ Total Time</div>
+              <div class="metric-value-large">00:44:33</div>
+              <div class="metric-unit">HH:MM:SS</div>
+            </div>
+            <div class="sub-metrics">
+              <div class="metric-card">
+                <div class="metric-header">↺ Reps</div>
+                <div class="metric-value-small">3</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-header">📊 Average Time</div>
+                <div class="metric-value-small">14:51</div>
+                <div class="metric-unit">MM:SS</div>
+              </div>
+            </div>
+            <button class="stats-button">View Weekly/Monthly Stats</button>
+          </div>
+          <div class="d-resize-handle">⠿ resize</div>
+        </div>
+      </div>
+
+    </div><!-- /layout-desktop -->
+
+
+    <!-- ════════════════ MOBILE LAYOUT ════════════════ -->
+    <div id="layout-mobile">
+
+      <!-- Current Rep -->
+      <div class="m-block card" draggable="true" data-name="currentrep" style="min-height:220px">
+        <span class="drag-grip">⠿</span>
+        <div class="current-rep-card">
+          <div class="rep-goal">Figure out mobile development</div>
+          <div class="rep-timer">22:33</div>
+          <div class="rep-controls">
+            <button class="btn-pause">⏸</button>
+            <button class="btn-interrupt">중단</button>
+            <button class="btn-delete">Delete</button>
+          </div>
+        </div>
+        <div class="m-resize-handle"></div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="m-block card" draggable="true" data-name="dashboard" style="min-height:340px">
+        <span class="drag-grip">⠿</span>
+        <div class="dashboard-card">
+          <div class="main-metric">
+            <div class="metric-header">⏱ Total Time</div>
+            <div class="metric-value-large">00:44:33</div>
+            <div class="metric-unit">HH:MM:SS</div>
+          </div>
+          <div class="sub-metrics">
+            <div class="metric-card">
+              <div class="metric-header">↺ Reps</div>
+              <div class="metric-value-small">3</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-header">📊 Average</div>
+              <div class="metric-value-small">14:51</div>
+              <div class="metric-unit">MM:SS</div>
+            </div>
+          </div>
+          <button class="stats-button">View Weekly/Monthly Stats</button>
+        </div>
+        <div class="m-resize-handle"></div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="m-block card" draggable="true" data-name="calendar" style="min-height:60px">
+        <span class="drag-grip">⠿</span>
+        <div class="calendar-card">
+          <div class="date-display">March 15, 2026</div>
+          <button class="date-select-btn">📅 날짜 선택</button>
+        </div>
+        <div class="m-resize-handle"></div>
+      </div>
+
+      <!-- Rep List -->
+      <div class="m-block card" draggable="true" data-name="replist" style="min-height:220px">
+        <span class="drag-grip">⠿</span>
+        <div class="replist-card">
+          <div class="section-label">Today's reps</div>
+          <div class="rep-card">
+            <div class="rep-color-tag"></div>
+            <div class="rep-card-content">
+              <span class="rep-card-goal">Create Rep Logo</span>
+              <span class="rep-card-time">25:00</span>
+            </div>
+            <div class="rep-card-progress-bar-container"><div class="rep-card-progress-bar" style="width:100%"></div></div>
+          </div>
+          <div class="rep-card">
+            <div class="rep-color-tag"></div>
+            <div class="rep-card-content">
+              <span class="rep-card-goal">Set and make AI friendly</span>
+              <span class="rep-card-time">05:02</span>
+            </div>
+            <div class="rep-card-progress-bar-container"><div class="rep-card-progress-bar" style="width:33%"></div></div>
+          </div>
+          <div class="rep-card">
+            <div class="rep-color-tag"></div>
+            <div class="rep-card-content">
+              <span class="rep-card-goal">렙 웹버그 수정하기</span>
+              <span class="rep-card-time">14:51</span>
+            </div>
+            <div class="rep-card-progress-bar-container"><div class="rep-card-progress-bar" style="width:99%"></div></div>
+          </div>
+        </div>
+        <div class="m-resize-handle"></div>
+      </div>
+
+    </div><!-- /layout-mobile -->
+
+  </div><!-- /frame -->
+
+<script>
+  // ── View toggle ──
+  const frame      = document.getElementById('frame');
+  const layoutDesk = document.getElementById('layout-desktop');
+  const layoutMob  = document.getElementById('layout-mobile');
+  const labelMode  = document.getElementById('label-mode');
+  const hint       = document.getElementById('mobile-hint');
+
+  document.getElementById('btn-mobile').onclick = () => {
+    frame.className = 'mobile';
+    layoutDesk.style.display = 'none';
+    layoutMob.style.display  = 'flex';
+    hint.style.display = 'block';
+    labelMode.textContent = 'Current: Mobile (390px)';
+  };
+  document.getElementById('btn-desktop').onclick = () => {
+    frame.className = 'desktop';
+    layoutDesk.style.display = 'flex';
+    layoutMob.style.display  = 'none';
+    hint.style.display = 'none';
+    labelMode.textContent = 'Current: Desktop';
+  };
+
+  // ── Desktop resize ──
+  document.querySelectorAll('#layout-desktop .d-resize-handle').forEach(handle => {
+    handle.addEventListener('mousedown', e => {
+      e.preventDefault();
+      const block = handle.closest('.resizable');
+      const startY = e.clientY;
+      const startH = block.offsetHeight;
+      const onMove = ev => { block.style.height = Math.max(60, startH + ev.clientY - startY) + 'px'; };
+      const onUp   = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+
+  // ── Desktop per-block reset ──
+  document.querySelectorAll('.d-reset-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const el = document.getElementById(btn.dataset.id);
+      el.style.height = btn.dataset.h + 'px';
+    });
+  });
+
+  // ── Global reset ──
+  const defaultMobileOrder = ['currentrep','dashboard','calendar','replist'];
+  const defaultMobileH = { currentrep: 220, dashboard: 340, calendar: 60, replist: 220 };
+  const defaultDesktopH = { 'd-calendar': 70, 'd-replist': 240, 'd-currentrep': 210, 'd-dashboard': 340 };
+
+  document.getElementById('btn-reset').onclick = () => {
+    // desktop
+    Object.entries(defaultDesktopH).forEach(([id, h]) => {
+      document.getElementById(id).style.height = h + 'px';
+    });
+    // mobile order + height
+    const mob = document.getElementById('layout-mobile');
+    defaultMobileOrder.forEach(name => {
+      const el = mob.querySelector(`[data-name="${name}"]`);
+      el.style.height = defaultMobileH[name] + 'px';
+      mob.appendChild(el);
+    });
+  };
+
+  // ── Mobile drag-to-reorder ──
+  let dragSrc = null;
+  const mob = document.getElementById('layout-mobile');
+
+  mob.addEventListener('dragstart', e => {
+    dragSrc = e.target.closest('.m-block');
+    if (!dragSrc) return;
+    setTimeout(() => dragSrc.classList.add('dragging'), 0);
+  });
+  mob.addEventListener('dragend', () => {
+    mob.querySelectorAll('.m-block').forEach(b => b.classList.remove('dragging','drag-over'));
+    dragSrc = null;
+  });
+  mob.addEventListener('dragover', e => {
+    e.preventDefault();
+    const t = e.target.closest('.m-block');
+    if (!t || t === dragSrc) return;
+    mob.querySelectorAll('.m-block').forEach(b => b.classList.remove('drag-over'));
+    t.classList.add('drag-over');
+  });
+  mob.addEventListener('drop', e => {
+    e.preventDefault();
+    const t = e.target.closest('.m-block');
+    if (!t || t === dragSrc) return;
+    const all = [...mob.querySelectorAll('.m-block')];
+    if (all.indexOf(dragSrc) < all.indexOf(t)) mob.insertBefore(dragSrc, t.nextSibling);
+    else mob.insertBefore(dragSrc, t);
+    mob.querySelectorAll('.m-block').forEach(b => b.classList.remove('drag-over'));
+  });
+
+  // ── Mobile resize ──
+  mob.querySelectorAll('.m-resize-handle').forEach(handle => {
+    handle.addEventListener('mousedown', e => {
+      e.stopPropagation(); // don't trigger drag
+      e.preventDefault();
+      const block = handle.closest('.m-block');
+      const startY = e.clientY;
+      const startH = block.offsetHeight;
+      const onMove = ev => { block.style.height = Math.max(60, startH + ev.clientY - startY) + 'px'; };
+      const onUp   = () => { document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+</script>
+</body>
+</html>
