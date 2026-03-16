@@ -17,7 +17,7 @@ interface RepDetailModalProps {
 const formatCompletionTime = (isoString: string | null | undefined): string => {
   if (!isoString) return 'N/A';
   const date = new Date(isoString);
-  return date.toLocaleString('ko-KR', { year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  return date.toLocaleString('en-US', { year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
 };
 
 // '총 진행 시간' 포맷팅 함수
@@ -37,15 +37,15 @@ const RepDetailModal: React.FC<RepDetailModalProps> = ({ isOpen, onClose, rep, o
   
   const footerContent = (
     <button onClick={() => onDeleteRequest && onDeleteRequest(rep)} className="detail-delete-button">
-      삭제
-    </button>
+      Delete
+</button>
   );
 
   return (
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title={rep?.goal || 'Rep 정보'}
+      title={rep?.goal || 'Rep Details'}
       footer={footerContent}
     >
       {/* 새로운 본문 구조 */}
@@ -54,8 +54,8 @@ const RepDetailModal: React.FC<RepDetailModalProps> = ({ isOpen, onClose, rep, o
         <div className="notes-section">
           <FaRegStickyNote className="section-icon" />
           <div className="notes-content">
-            <h3>회고 노트</h3>
-            <p>{rep?.notes || '작성된 노트가 없습니다.'}</p>
+            <h3>Retrospective Note</h3>
+            <p>{rep?.notes || 'No notes written.'}</p>
           </div>
         </div>
 

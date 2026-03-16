@@ -14,7 +14,7 @@ function UserProfile() {
   return (
     <div className="user-profile">
       <div className="user-email">{user.email}</div>
-      <button onClick={handleSignOut} className="logout-button">로그아웃</button>
+      <button onClick={handleSignOut} className="logout-button">Sign out</button>
     </div>
   );
 }

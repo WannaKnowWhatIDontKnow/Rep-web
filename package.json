@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@capacitor/cli": "^8.2.0",
+    "@capacitor/core": "^8.2.0",
+    "@capacitor/ios": "^8.2.0",
     "@supabase/supabase-js": "^2.50.2",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.0.10",

@@ -21,7 +21,7 @@ function Login({ onToggleMode, onClose }: LoginProps): React.ReactElement {
     setLoading(true);
     
     if (!email || !password) {
-      setError('이메일과 비밀번호를 모두 입력해주세요.');
+      setError('Please enter both email and password.');
       setLoading(false);
       return;
     }
@@ -29,7 +29,7 @@ function Login({ onToggleMode, onClose }: LoginProps): React.ReactElement {
     const result = await signIn(email, password);
     
     if (!result.success) {
-      setError(result.error || '로그인 중 오류가 발생했습니다.');
+      setError(result.error || 'An error occurred during sign in.');
     } else {
       // 로그인 성공 시 모달 닫기
       if (onClose) onClose();
@@ -45,34 +45,34 @@ function Login({ onToggleMode, onClose }: LoginProps): React.ReactElement {
       
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
-          <label>이메일</label>
+          <label>Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="이메일 주소"
+            placeholder="Email address"
             required
           />
         </div>
         
         <div className="form-group">
-          <label>비밀번호</label>
+          <label>Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호"
+            placeholder="Password"
             required
           />
         </div>
         
         <button type="submit" disabled={loading} className="auth-button">
-          {loading ? '로그인 중...' : '로그인'}
+          {loading ? 'Signing in...' : 'Sign in'}
         </button>
       </form>
       
       <div className="auth-footer">
-        <p>계정이 없으신가요? <button onClick={onToggleMode} className="auth-link">회원가입</button></p>
+        <p>Don't have an account? <button onClick={onToggleMode} className="auth-link">Sign up</button></p>
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ const CalendarSection: React.FC<CalendarSectionProps> = ({ selectedDate, setSele
     const CustomDateButton = React.forwardRef<HTMLButtonElement, { onClick?: () => void }>(({ onClick }, ref) => (
         <button onClick={onClick} ref={ref} className="date-select-button">
             <IoCalendarClearOutline />
-            <span>날짜 선택</span>
+            <span>Select Date</span>
         </button>
     ));
     

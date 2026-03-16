@@ -23,19 +23,19 @@ function Signup({ onToggleMode }: SignupProps): React.ReactElement {
     
     // 입력값 검증
     if (!email || !password || !confirmPassword) {
-      setError('모든 항목을 입력해주세요.');
+      setError('Please fill in all fields.');
       setLoading(false);
       return;
     }
     
     if (password !== confirmPassword) {
-      setError('비밀번호가 일치하지 않습니다.');
+      setError('Passwords do not match.');
       setLoading(false);
       return;
     }
     
     if (password.length < 6) {
-      setError('비밀번호는 최소 6자 이상이어야 합니다.');
+      setError('Password must be at least 6 characters.');
       setLoading(false);
       return;
     }
@@ -44,7 +44,7 @@ function Signup({ onToggleMode }: SignupProps): React.ReactElement {
     const result = await signUp(email, password);
     
     if (!result.success) {
-      setError(result.error || '회원가입 중 오류가 발생했습니다.');
+      setError(result.error || 'An error occurred during sign up.');
     } else {
       setSuccess(true);
       setEmail('');
@@ -59,49 +59,49 @@ function Signup({ onToggleMode }: SignupProps): React.ReactElement {
     <div className="auth-container">
       
       {error && <div className="auth-error">{error}</div>}
-      {success && <div className="auth-success">회원가입이 완료되었습니다! 이메일 확인 후 로그인해주세요.</div>}
+      {success && <div className="auth-success">Sign up complete! Please verify your email before signing in.</div>}
       
       <form onSubmit={handleSubmit} className="auth-form">
         <div className="form-group">
-          <label>이메일</label>
+          <label>Email</label>
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="이메일 주소"
+            placeholder="Email address"
             required
           />
         </div>
         
         <div className="form-group">
-          <label>비밀번호</label>
+          <label>Password</label>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호 (6자 이상)"
+            placeholder="Password (min 6 characters)"
             required
           />
         </div>
         
         <div className="form-group">
-          <label>비밀번호 확인</label>
+          <label>Confirm Password</label>
           <input
             type="password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="비밀번호 확인"
+            placeholder="Confirm password"
             required
           />
         </div>
         
         <button type="submit" disabled={loading} className="auth-button">
-          {loading ? '처리 중...' : '회원가입'}
+          {loading ? 'Processing...' : 'Sign up'}
         </button>
       </form>
       
       <div className="auth-footer">
-        <p>이미 계정이 있으신가요? <button onClick={onToggleMode} className="auth-link">로그인</button></p>
+        <p>Already have an account? <button onClick={onToggleMode} className="auth-link">Sign in</button></p>
       </div>
     </div>
   );

@@ -32,7 +32,7 @@ const CurrentRep: React.FC<CurrentRepProps> = ({ rep, remainingSeconds, isPaused
       onStart(goal, minutes);
       setShowForm(false); // Rep 생성 후 폼 숨기기
     } else {
-      alert('Rep 목표를 입력해주세요!');
+      alert('Please enter a goal for this Rep!');
     }
   };
 
@@ -49,7 +49,7 @@ const CurrentRep: React.FC<CurrentRepProps> = ({ rep, remainingSeconds, isPaused
       <div className="initial-form-group">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <label className="initial-form-label" htmlFor="goal-input">
-            이번 Rep의 목표는 무엇인가요?
+            What's your goal for this Rep?
           </label>
           <span style={{ 
             fontSize: '12px', 
@@ -69,7 +69,7 @@ const CurrentRep: React.FC<CurrentRepProps> = ({ rep, remainingSeconds, isPaused
             setGoal(newValue);
             setCharCount(newValue.length);
           }}
-          placeholder="Setting a goal (최대 30자)"
+          placeholder="Setting a goal (max 30 chars)"
           className="initial-goal-input"
           autoFocus
           maxLength={30} // HTML 제한도 추가
@@ -78,8 +78,8 @@ const CurrentRep: React.FC<CurrentRepProps> = ({ rep, remainingSeconds, isPaused
 
       <div className="initial-form-group">
         <div className="time-setter-header">
-            <label className="initial-form-label">시간 설정</label>
-            <div className="time-slider-value">{minutes}<span>분</span></div>
+            <label className="initial-form-label">Duration</label>
+            <div className="time-slider-value">{minutes}<span>min</span></div>
         </div>
         <input
             type="range"
@@ -91,8 +91,8 @@ const CurrentRep: React.FC<CurrentRepProps> = ({ rep, remainingSeconds, isPaused
             style={{ '--fill-percent': `${sliderFillPercent}%` } as React.CSSProperties}
         />
         <div className="time-slider-labels">
-            <span>1분</span>
-            <span>30분</span>
+            <span>1 min</span>
+            <span>30 min</span>
         </div>
       </div>
       
@@ -102,13 +102,13 @@ const CurrentRep: React.FC<CurrentRepProps> = ({ rep, remainingSeconds, isPaused
           onClick={handleStartClick} 
           disabled={!goal.trim()}
         >
-          시작하기
+          Start
         </button>
         <button 
           className="cancel-button" 
           onClick={() => setShowForm(false)}
         >
-          취소
+          Cancel
         </button>
       </div>
     </div>
@@ -127,7 +127,7 @@ const CurrentRep: React.FC<CurrentRepProps> = ({ rep, remainingSeconds, isPaused
         </div>
         <div className="rep-controls">
           <button onClick={onTogglePause}>{isPaused ? '▶' : 'II'}</button>
-          <button className="interrupt-button" onClick={onInterrupt}>중단</button>
+          <button className="interrupt-button" onClick={onInterrupt}>Stop</button>
           <button onClick={onDeleteRequest}>Delete</button>
         </div>
       </div>

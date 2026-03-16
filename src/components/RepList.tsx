@@ -32,7 +32,7 @@ const RepList: React.FC<RepListProps> = ({ reps, onRepCardClick }) => {
           </motion.div>
         ))}
         {reps.length === 0 && (
-          <p className="empty-list-message">완료된 Rep이 없습니다.</p>
+          <p className="empty-list-message">No completed Reps.</p>
         )}
       </motion.div>
     </div>

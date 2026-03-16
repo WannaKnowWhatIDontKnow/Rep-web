@@ -106,7 +106,7 @@ function App(): React.ReactElement {
 
   const handleStartRep = (goal: string, minutes: number): void => {
     if (!isToday(selectedDate)) {
-      alert("렙 생성은 오늘 날짜에서만 가능합니다.");
+      alert("Reps can only be created for today.");
       return;
     }
     const newInitialSeconds = minutes * 60;
@@ -248,7 +248,7 @@ function App(): React.ReactElement {
       <div className="app-header">
         <h1 onClick={() => setActiveTab('daily')} style={{ cursor: 'pointer' }}>Reps</h1>
         <div className="auth-section">
-          {isAuthenticated ? <UserProfile /> : <button onClick={handleOpenAuthModal} className="header-auth-button">로그인</button>}
+          {isAuthenticated ? <UserProfile /> : <button onClick={handleOpenAuthModal} className="header-auth-button">Sign in</button>}
         </div>
       </div>
       
@@ -270,8 +270,8 @@ function App(): React.ReactElement {
       <RetrospectiveModal isOpen={isRetroModalOpen} onSubmit={handleRetroSubmit} repToReview={repToReview} />
       <AuthModal isOpen={isAuthModalOpen} onClose={handleCloseAuthModal} />
       <ConfirmModal isOpen={showConfirmModal} onConfirm={confirmEarlyComplete} onCancel={() => setShowConfirmModal(false)} />
-      <ConfirmModal isOpen={!!repToDelete} onConfirm={handleConfirmDelete} onCancel={handleCancelDelete} title="삭제 확인"><p>정말 이 Rep을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.</p></ConfirmModal>
-      <ConfirmModal isOpen={isDeleteCurrentRepModalOpen} onConfirm={confirmDeleteCurrentRep} onCancel={cancelDeleteCurrentRep} title="삭제 확인"><p>진행 중인 Rep을 정말 삭제하시겠습니까?</p></ConfirmModal>
+      <ConfirmModal isOpen={!!repToDelete} onConfirm={handleConfirmDelete} onCancel={handleCancelDelete} title="Delete Rep"><p>Are you sure you want to delete this Rep? This cannot be undone.</p></ConfirmModal>
+      <ConfirmModal isOpen={isDeleteCurrentRepModalOpen} onConfirm={confirmDeleteCurrentRep} onCancel={cancelDeleteCurrentRep} title="Delete Rep"><p>Are you sure you want to delete the current Rep?</p></ConfirmModal>
       <RepDetailModal isOpen={isDetailModalOpen} onClose={() => { setDetailModalOpen(false); setSelectedRep(null); }} rep={selectedRep} onDeleteRequest={handleDeleteRequest} />
     </div>
   );

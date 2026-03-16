@@ -33,10 +33,10 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
       // 직접 만든 폴백 UI를 렌더링
       return (
         <div style={{ padding: 20, backgroundColor: '#fffbe6', border: '1px solid #ffe58f', borderRadius: 8 }}>
-          <h2>앗, 무언가 잘못되었어요.</h2>
-          <p>이 영역을 표시하는 데 문제가 발생했습니다. 새로고침을 시도하거나 관리자에게 문의해주세요.</p>
+          <h2>Oops, something went wrong.</h2>
+          <p>There was a problem displaying this section. Try refreshing the page or contact support.</p>
           <details style={{ whiteSpace: 'pre-wrap', marginTop: 10 }}>
-            <summary>에러 상세 정보</summary>
+            <summary>Error details</summary>
             {this.state.error && this.state.error.toString()}
           </details>
         </div>

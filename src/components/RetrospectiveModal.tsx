@@ -40,7 +40,7 @@ const RetrospectiveModal: React.FC<RetrospectiveModalProps> = ({ isOpen, onSubmi
   // 5. 버튼 텍스트 및 클래스 이름 변경
   const footerContent = (
     <button className="retro-submit-button" onClick={handleSubmit}>
-      기록하기
+      Save
     </button>
   );
 
@@ -48,7 +48,7 @@ const RetrospectiveModal: React.FC<RetrospectiveModalProps> = ({ isOpen, onSubmi
     <BaseModal
       isOpen={isOpen}
       onClose={handleClose}
-      title="Rep을 완료했습니다!" // 2. 제목 변경
+      title="Rep Complete!"
       footer={footerContent}
     >
       {/* 3. 새로운 본문 구조 */}
@@ -57,13 +57,13 @@ const RetrospectiveModal: React.FC<RetrospectiveModalProps> = ({ isOpen, onSubmi
           <FaFeatherAlt className="section-icon" />
           <div className="notes-input-content">
             {/* 4. 라벨 텍스트 변경 */}
-            <label htmlFor="notes-input">회고 노트</label>
+            <label htmlFor="notes-input">Retrospective Note</label>
             <textarea
               id="notes-input"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               // 4. 플레이스홀더 텍스트 변경
-              placeholder="다음 Rep을 위해 간단한 메모를 남겨보세요. (선택사항)"
+              placeholder="Leave a quick note for your next Rep. (optional)"
               rows={4}
             />
           </div>

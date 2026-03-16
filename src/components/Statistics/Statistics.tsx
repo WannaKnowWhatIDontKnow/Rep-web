@@ -49,12 +49,13 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
 
   const formatDate = (date: Date): string => {
     if (timeRange === 'week') {
-      const days = ['일', '월', '화', '수', '목', '금', '토'];
+      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       return days[date.getDay()];
     } else if (timeRange === 'month') {
-      return `${date.getDate()}일`;
+      return `${date.getDate()}`;
     } else {
-      return `${date.getMonth() + 1}월`;
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return months[date.getMonth()];
     }
   };
 
@@ -72,7 +73,7 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
             .eq('user_id', user?.id || '')
             .gte('completed_at', startDate.toISOString())
             .order('completed_at', { ascending: true });
-          if (error) throw new Error('데이터를 가져오는 중 오류가 발생했습니다.');
+          if (error) throw new Error('Failed to fetch data.');
           data = repData;
         } else {
           const savedReps = localStorage.getItem('repList');
@@ -87,7 +88,7 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
         setRepData(processData(data));
       } catch (err) {
         console.error('데이터 로딩 오류:', err);
-        setError('데이터를 불러오는 중 오류가 발생했습니다.');
+        setError('Failed to load data.');
       } finally {
         setLoading(false);
       }
@@ -165,34 +166,34 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
     <div className="statistics-container">
       <div className="statistics-header">
         <button className="back-to-daily" onClick={() => setActiveTab('daily')}>
-          ← 돌아가기
+          ← Back
         </button>
         <div className="time-range-selector">
-          <button className={timeRange === 'week' ? 'active' : ''} onClick={() => setTimeRange('week')}>주간</button>
-          <button className={timeRange === 'month' ? 'active' : ''} onClick={() => setTimeRange('month')}>월간</button>
-          <button className={timeRange === 'year' ? 'active' : ''} onClick={() => setTimeRange('year')}>연간</button>
+          <button className={timeRange === 'week' ? 'active' : ''} onClick={() => setTimeRange('week')}>Week</button>
+          <button className={timeRange === 'month' ? 'active' : ''} onClick={() => setTimeRange('month')}>Month</button>
+          <button className={timeRange === 'year' ? 'active' : ''} onClick={() => setTimeRange('year')}>Year</button>
         </div>
       </div>
 
       {!isAuthenticated ? (
         <div className="auth-required-message">
-          <p>로그인하면 통계 데이터를 확인할 수 있습니다.</p>
-          <button className="back-to-daily" onClick={() => setActiveTab('daily')}>돌아가기</button>
+          <p>Sign in to view your statistics.</p>
+          <button className="back-to-daily" onClick={() => setActiveTab('daily')}>Back</button>
         </div>
       ) : loading ? (
-        <div className="loading">불러오는 중...</div>
+        <div className="loading">Loading...</div>
       ) : error ? (
         <div className="error">{error}</div>
       ) : (
         <>
           <div className="statistics-summary">
             <div className="summary-card">
-              <p className="summary-label">총 렙</p>
+              <p className="summary-label">Total Reps</p>
               <p className="summary-value">{totals.totalReps}</p>
               <p className="summary-unit">reps</p>
             </div>
             <div className="summary-card">
-              <p className="summary-label">총 시간</p>
+              <p className="summary-label">Total Time</p>
               <p className="summary-value">{totals.totalTime}</p>
               <p className="summary-unit">min</p>
             </div>
@@ -200,10 +201,10 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
 
           <div className="chart-container">
             <div className="chart-header">
-              <p className="chart-label">{chartMetric === 'time' ? '시간 (분)' : '렙 횟수'}</p>
+              <p className="chart-label">{chartMetric === 'time' ? 'Time (min)' : 'Rep Count'}</p>
               <div className="metric-toggle">
-                <button className={chartMetric === 'time' ? 'active' : ''} onClick={() => setChartMetric('time')}>분</button>
-                <button className={chartMetric === 'reps' ? 'active' : ''} onClick={() => setChartMetric('reps')}>렙</button>
+                <button className={chartMetric === 'time' ? 'active' : ''} onClick={() => setChartMetric('time')}>min</button>
+                <button className={chartMetric === 'reps' ? 'active' : ''} onClick={() => setChartMetric('reps')}>reps</button>
               </div>
             </div>
             <ResponsiveContainer width="100%" height={220}>
@@ -219,7 +220,7 @@ const Statistics: React.FC<StatisticsProps> = ({ setActiveTab }) => {
                 <Tooltip
                   cursor={{ fill: 'rgba(110, 102, 255, 0.06)' }}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}
-                  formatter={(value: number) => [value, chartMetric === 'time' ? '분' : '렙']}
+                  formatter={(value: number) => [value, chartMetric === 'time' ? 'min' : 'reps']}
                 />
                 <Bar dataKey="displayValue" fill="#6E66FF" radius={[4, 4, 0, 0]} />
               </BarChart>

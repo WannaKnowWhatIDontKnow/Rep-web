@@ -10,11 +10,11 @@ interface ConfirmModalProps {
   children?: ReactNode;
 }
 
-const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, onConfirm, onCancel, title = '확인', children }) => {
+const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, onConfirm, onCancel, title = 'Confirm', children }) => {
   const footerContent = (
     <>
-      <button className="confirm-button" onClick={onConfirm}>확인</button>
-      <button className="cancel-button" onClick={onCancel}>취소</button>
+      <button className="confirm-button" onClick={onConfirm}>Confirm</button>
+      <button className="cancel-button" onClick={onCancel}>Cancel</button>
     </>
   );
 
@@ -25,7 +25,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({ isOpen, onConfirm, onCancel
       title={title}
       footer={footerContent}
     >
-      {children || <p style={{ textAlign: 'center', margin: 0 }}>정말 렙을 종료하시겠습니까?</p>}
+      {children || <p style={{ textAlign: 'center', margin: 0 }}>Are you sure you want to end this Rep?</p>}
     </BaseModal>
   );
 };
