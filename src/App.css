@@ -184,6 +184,8 @@ body {
   .main-content {
     flex-direction: column;
   }
+  .right-panel > :first-child { order: 2; }
+  .right-panel > :last-child { order: 1; }
   .right-panel { order: 1; width: 100%; }
   .left-panel  { order: 2; width: 100%; }
 }

@@ -21,7 +21,7 @@ function AuthModal({ isOpen, onClose }: AuthModalProps) {
     <BaseModal
       isOpen={isOpen}
       onClose={onClose}
-      title={mode === 'login' ? '로그인' : '회원가입'}
+      title={mode === 'login' ? 'Sign in' : 'Sign up'}
     >
       {/* BaseModal의 children으로 Login 또는 Signup 컴포넌트를 전달 */}
       {mode === 'login' ? (

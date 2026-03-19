@@ -118,3 +118,26 @@
 .sub-metrics .metric-card .metric-unit {
   margin-top: 8px;
 }
+
+@media (max-width: 768px) {
+  .new-dashboard {
+    padding: 16px;
+    gap: 14px;
+  }
+  .main-metric,
+  .metric-card {
+    padding: 12px;
+  }
+  .metric-value-large {
+    font-size: 32px;
+  }
+  .metric-value-small {
+    font-size: 22px;
+  }
+  .metric-header {
+    font-size: 12px;
+  }
+  .sub-metrics {
+    gap: 12px;
+  }
+}
